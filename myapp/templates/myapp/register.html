@@ -1,0 +1,26 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Регистрация · Careline{% endblock %}
+
+{% block content %}
+    <section class="registration-choice">
+        <p class="eyebrow">CARELINE · ЛИЧНЫЙ ПРОФИЛЬ</p>
+        <h1>Выберите, как пользоваться сервисом</h1>
+        <div class="registration-choice-grid">
+            <a class="registration-choice-card patient-choice" href="{% url 'register_patient' %}">
+                <span class="registration-icon">+</span>
+                <span class="eyebrow">ДЛЯ СЕБЯ И БЛИЗКИХ</span>
+                <strong>Я пациент</strong>
+                <span>Запись к врачу, сообщения и покупки в аптеках.</span>
+                <b>Создать аккаунт пациента →</b>
+            </a>
+            <a class="registration-choice-card doctor-choice" href="{% url 'register_doctor' %}">
+                <span class="registration-icon">✳</span>
+                <span class="eyebrow">ДЛЯ СПЕЦИАЛИСТА</span>
+                <strong>Я врач</strong>
+                <span>Принимайте запросы пациентов и отправляйте рекомендации.</span>
+                <b>Создать профиль врача →</b>
+            </a>
+        </div>
+    </section>
+{% endblock %}

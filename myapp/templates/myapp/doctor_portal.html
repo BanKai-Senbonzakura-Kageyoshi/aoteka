@@ -1,0 +1,78 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Кабинет врача · Careline{% endblock %}
+
+{% block content %}
+    <section class="doctor-workspace">
+        <header class="doctor-workspace-header">
+            <div>
+                <p class="doctor-kicker">CARELINE · ПРАКТИКА</p>
+                <h1>Добрый день, {{ doctor.user.first_name|default:doctor.user.username }}</h1>
+                <p>Ваши диалоги с пациентами и рекомендации в одном месте.</p>
+            </div>
+            <div class="doctor-status-panel">
+                <span class="doctor-status-dot {{ doctor.status|lower }}"></span>
+                <span>{{ doctor.get_status_display }}</span>
+                <span class="doctor-stat-number">{{ conversations|length }}</span>
+                <small>диалогов</small>
+            </div>
+        </header>
+
+        <div class="doctor-portal-layout">
+            <section class="doctor-conversations-panel">
+                <div class="doctor-panel-heading">
+                    <div><span class="doctor-kicker">ЗАПРОСЫ НА ПРИЁМ</span><h2>Ожидают ответа</h2></div>
+                    <span class="doctor-count">{{ appointment_requests|length }}</span>
+                </div>
+                <div class="doctor-conversation-list appointment-list">
+                    {% for appointment_request in appointment_requests %}
+                        {% if appointment_request.status == 'PENDING' %}
+                            <a class="doctor-conversation-link appointment-request-link" href="{% url 'appointment_detail' appointment_request.pk %}">
+                                <span class="doctor-patient-avatar">{{ appointment_request.patient.user.get_full_name|default:appointment_request.patient.user.username|slice:':1'|upper }}</span>
+                                <span class="doctor-conversation-copy">
+                                    <strong>{{ appointment_request.patient.user.get_full_name|default:appointment_request.patient.user.username }}</strong>
+                                    <small class="appointment-countdown" data-countdown="{{ appointment_request.expires_at|date:'c' }}">Осталось 10 минут</small>
+                                </span>
+                                <span class="doctor-chevron">→</span>
+                            </a>
+                        {% endif %}
+                    {% empty %}
+                        <div class="doctor-empty-state"><span>10</span><p>Новых запросов пока нет.</p></div>
+                    {% endfor %}
+                </div>
+                <div class="doctor-panel-heading">
+                    <div><span class="doctor-kicker">ПАЦИЕНТЫ</span><h2>Диалоги</h2></div>
+                    <span class="doctor-count">{{ conversations|length }}</span>
+                </div>
+                <div class="doctor-conversation-list">
+                    {% for conversation in conversations %}
+                        <a class="doctor-conversation-link" href="{% url 'conversation_detail' conversation.pk %}">
+                            <span class="doctor-patient-avatar">{{ conversation.patient.user.get_full_name|default:conversation.patient.user.username|slice:':1'|upper }}</span>
+                            <span class="doctor-conversation-copy">
+                                <strong>{{ conversation.patient.user.get_full_name|default:conversation.patient.user.username }}</strong>
+                                <small>{{ conversation.updated_at|date:'d.m.Y · H:i' }}</small>
+                                {% with latest=conversation.messages.last %}
+                                    {% if latest %}<span>{{ latest.body|default:'Вы отправили рекомендацию лекарства'|truncatechars:80 }}</span>{% else %}<span>Новая беседа</span>{% endif %}
+                                {% endwith %}
+                            </span>
+                            <span class="doctor-chevron">→</span>
+                        </a>
+                    {% empty %}
+                        <div class="doctor-empty-state"><span>01</span><p>Когда пациент напишет вам, беседа появится здесь.</p></div>
+                    {% endfor %}
+                </div>
+            </section>
+            <aside class="doctor-side-note">
+                <span class="doctor-note-mark">+</span>
+                <h2>Рекомендации</h2>
+                <p>Отправляйте сообщение и лекарство из доступной аптеки. Пациент сможет добавить его в корзину одним нажатием.</p>
+                <a href="{% url 'doctor_directory' %}">Посмотреть профиль врача →</a>
+            </aside>
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'myapp/appointment_timer.js' %}" defer></script>
+{% endblock %}

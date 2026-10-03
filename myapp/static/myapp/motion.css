@@ -1,0 +1,159 @@
+/* Careline motion layer — анимации в стиле сайта */
+
+/* ---------- hover карточек ---------- */
+.doctor-row, .doctor-card, .pharmacy-card, .medicine-card, .med-row,
+.prescription-section, .profile-panel, .sidebar-card, .review-section,
+.registration-choice-card, .welcome-aside, .urgent-strip, .stat-pill {
+    transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .28s ease, border-color .28s ease;
+}
+.doctor-row:hover, .doctor-card:hover, .pharmacy-card:hover, .medicine-card:hover,
+.med-row:hover, .prescription-section:hover, .profile-panel:hover, .sidebar-card:hover,
+.review-section:hover, .welcome-aside:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 26px 54px rgba(58, 40, 48, .16);
+    border-color: #f7dfe4;
+}
+.registration-choice-card:hover { transform: translateY(-6px) scale(1.012); }
+.urgent-strip:hover { transform: translateY(-3px); box-shadow: 0 22px 44px rgba(211, 147, 46, .16); }
+.stat-pill:hover { transform: translateY(-2px); background: #fff3f6; }
+
+/* ---------- ссылки и пункты меню ---------- */
+.text-link, .back-link, .conversation-back, .appointment-back, .register-login-link {
+    transition: color .2s ease, transform .2s ease;
+}
+.text-link:hover, .back-link:hover, .conversation-back:hover, .appointment-back:hover {
+    transform: translateX(3px);
+}
+.navigation a { position: relative; overflow: hidden; }
+.navigation a::after {
+    position: absolute; content: ""; right: 12px; bottom: 6px; left: 12px; height: 2px;
+    border-radius: 2px; background: linear-gradient(90deg, #ff8fa3, #ff5f74);
+    transform: scaleX(0); transform-origin: left; transition: transform .26s cubic-bezier(.2,.8,.2,1);
+}
+.navigation a:hover::after, .navigation a:focus-visible::after { transform: scaleX(1); }
+
+/* ---------- кнопки: блик + пульс ---------- */
+.button { position: relative; overflow: hidden; isolation: isolate; }
+.button::before {
+    position: absolute; content: ""; top: -60%; left: -80%; z-index: -1; width: 45%; height: 220%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent);
+    transform: skewX(-22deg); transition: left .55s cubic-bezier(.2,.8,.2,1);
+}
+.button:hover::before { left: 130%; }
+.button:focus-visible { animation: button-glow 1s ease-in-out infinite alternate; }
+@keyframes button-glow {
+    from { box-shadow: 0 12px 25px rgba(255, 95, 116,.19); }
+    to { box-shadow: 0 12px 30px rgba(255, 95, 116,.19), 0 0 0 5px rgba(255, 95, 116,.16); }
+}
+.link-button { transition: color .2s ease, transform .2s ease; }
+.link-button:hover { color: var(--green-dark); transform: translateY(-1px); }
+
+/* ---------- brand и бейджи ---------- */
+.brand { display: inline-flex; align-items: center; transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+.brand:hover { transform: scale(1.03); }
+.brand-mark { animation: brand-float 4.5s ease-in-out infinite; }
+@keyframes brand-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(-6deg); }
+}
+.cart-count.bump { animation: badge-bump .45s cubic-bezier(.2,.9,.3,1.5); }
+@keyframes badge-bump {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.45) rotate(-8deg); }
+    100% { transform: scale(1); }
+}
+
+/* ---------- индикаторы статусов ---------- */
+.urgent-dot { animation: dot-pulse 2s ease-in-out infinite; }
+@keyframes dot-pulse {
+    0%, 100% { box-shadow: 0 0 0 5px rgba(216,141,45,.14); transform: scale(1); }
+    50% { box-shadow: 0 0 0 11px rgba(216,141,45,0); transform: scale(1.15); }
+}
+.status-badge { position: relative; }
+.status-badge.free::after, .status-badge.emergency::after {
+    position: absolute; content: ""; top: 50%; right: -11px; width: 6px; height: 6px;
+    border-radius: 50%; background: currentColor; transform: translateY(-50%);
+    animation: status-blink 1.6s ease-in-out infinite;
+}
+@keyframes status-blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+.rating { display: inline-block; transition: transform .22s cubic-bezier(.2,.8,.2,1), text-shadow .22s ease; }
+.doctor-row:hover .rating, .doctor-card:hover .rating, .doctor-profile-hero .rating { transform: scale(1.06); text-shadow: 0 0 12px rgba(211,147,46,.5); }
+
+/* ---------- формы ---------- */
+input, textarea, select { transition: border-color .22s ease, box-shadow .22s ease, transform .22s ease; }
+input:hover, textarea:hover, select:hover { border-color: #e8b9c2; }
+input:focus, textarea:focus, select:focus { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(255, 95, 116,.1); }
+.form-layout p { animation: care-rise .45s cubic-bezier(.2,.7,.2,1) both; }
+.form-layout p:nth-of-type(1) { animation-delay: .04s; }
+.form-layout p:nth-of-type(2) { animation-delay: .1s; }
+.form-layout p:nth-of-type(3) { animation-delay: .16s; }
+.form-layout p:nth-of-type(4) { animation-delay: .22s; }
+.form-layout p:nth-of-type(n+5) { animation-delay: .28s; }
+input[type="checkbox"], input[type="radio"] { transition: transform .18s cubic-bezier(.2,.9,.3,1.5); }
+input[type="checkbox"]:hover, input[type="radio"]:hover { transform: scale(1.18); }
+input[type="checkbox"]:checked, input[type="radio"]:checked { animation: check-pop .3s cubic-bezier(.2,.9,.3,1.5); }
+@keyframes check-pop { 0% { transform: scale(.7); } 60% { transform: scale(1.22); } 100% { transform: scale(1); } }
+
+/* ---------- всплывающие сообщения ---------- */
+.messages { display: grid; gap: 8px; }
+.message { animation: toast-in .4s cubic-bezier(.2,.8,.2,1) both; }
+.message:nth-child(2) { animation-delay: .1s; }
+.message:nth-child(3) { animation-delay: .2s; }
+.message.error { animation: toast-shake .4s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-14px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes toast-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+}
+
+/* ---------- чат ---------- */
+.chat-message { animation: bubble-in .34s cubic-bezier(.2,.8,.2,1) both; }
+.chat-message.mine { animation-name: bubble-in-mine; }
+@keyframes bubble-in { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes bubble-in-mine { from { opacity: 0; transform: translateY(12px) translateX(10px) scale(.96); } to { opacity: 1; transform: none; } }
+.conversation-compose .button { transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease; }
+.conversation-compose .button:hover { transform: translateY(-2px) scale(1.02); }
+
+/* ---------- таймер приёма ---------- */
+.appointment-clock { animation: clock-tick 1s ease-in-out infinite; transform-origin: center; }
+@keyframes clock-tick { 0%, 100% { opacity: 1; } 50% { opacity: .78; } }
+.appointment-countdown { animation: countdown-glow 2.4s ease-in-out infinite; border-radius: 6px; }
+@keyframes countdown-glow {
+    0%, 100% { text-shadow: 0 0 0 rgba(181,82,71,0); }
+    50% { text-shadow: 0 0 12px rgba(181,82,71,.45); }
+}
+
+/* ---------- декоративный параллакс в hero ---------- */
+.welcome-grid { position: relative; }
+.welcome-grid::before {
+    position: absolute; content: ""; top: -14px; right: -24px; z-index: -1; width: 170px; height: 170px;
+    border-radius: 50%; background: radial-gradient(circle, rgba(255, 143, 163,.2), transparent 68%);
+    animation: blob-drift 11s ease-in-out infinite;
+}
+.welcome-grid::after {
+    position: absolute; content: ""; bottom: 10px; left: -30px; z-index: -1; width: 140px; height: 140px;
+    border-radius: 50%; background: radial-gradient(circle, rgba(255, 95, 116,.16), transparent 68%);
+    animation: blob-drift 14s ease-in-out infinite reverse;
+}
+@keyframes blob-drift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-16px, 18px) scale(1.14); }
+}
+
+/* ---------- плавное появление страницы ---------- */
+.container { animation: page-in .5s ease-out both; }
+@keyframes page-in { from { opacity: 0; } to { opacity: 1; } }
+.topbar { animation: topbar-down .5s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes topbar-down { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+.footer { animation: care-rise .6s .3s ease-out both; }
+
+/* ---------- прелоадер 3D-лекарств ---------- */
+.medicine-viewer { transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.medicine-card:hover .medicine-viewer { transform: scale(1.06) rotate(-3deg); }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

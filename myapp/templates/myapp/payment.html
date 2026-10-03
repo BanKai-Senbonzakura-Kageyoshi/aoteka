@@ -1,0 +1,98 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Оплата заказа · Careline{% endblock %}
+
+{% block content %}
+    <p class="eyebrow">ОПЛАТА ЗАКАЗА</p>
+    <h1>Оплата заказа</h1>
+    <p class="muted">Аптека «{{ pharmacy.name }}» · {{ pharmacy.address }}. Проверьте сумму и введите данные карты — заказ уйдёт фармацевту на проверку.</p>
+
+    <section class="payment-page">
+        <div class="payment-summary">
+            <p class="eyebrow">СОСТАВ ЗАКАЗА</p>
+            <div class="payment-summary-items">
+                {% for item in items %}
+                    <div class="payment-summary-row">
+                        <span>{{ item.medicine.name }} × {{ item.quantity }}</span>
+                        <strong>{{ item.line_total }} ₽</strong>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="payment-summary-total">
+                <span>Итого{% if discount_percent %} (скидка {{ discount_percent }}%){% endif %}</span>
+                <strong>{{ total }} ₽</strong>
+            </div>
+            <p class="payment-disclaimer">Учебная оплата: банк не подключён, номер карты и CVC не сохраняются и не отправляются.</p>
+            <a class="payment-back" href="{% url 'cart' %}">← Вернуться в корзину</a>
+        </div>
+
+        <div class="payment-card-panel">
+            <p class="eyebrow">ДАННЫЕ КАРТЫ</p>
+            <form method="post" action="{% url 'cart_checkout' pharmacy.pk %}" class="pay-form">
+                {% csrf_token %}
+                <div class="pay-grid">
+                    <div class="pay-fields">
+                        <div class="pay-field">
+                            <label class="pay-label" for="{{ payment_form.card_number.id_for_label }}">Номер карты</label>
+                            {{ payment_form.card_number }}
+                        </div>
+                        <div class="pay-field">
+                            <span class="pay-label" id="expiry-label">Срок действия</span>
+                            <div class="pay-expiry" role="group" aria-labelledby="expiry-label">
+                                {{ payment_form.exp_month }}
+                                <span class="pay-expiry-sep" aria-hidden="true">/</span>
+                                {{ payment_form.exp_year }}
+                            </div>
+                        </div>
+                        <div class="pay-field">
+                            <label class="pay-label" for="{{ payment_form.cardholder_name.id_for_label }}">Имя владельца</label>
+                            {{ payment_form.cardholder_name }}
+                        </div>
+                        <div class="pay-brands" aria-hidden="true">
+                            <span class="pay-brand" data-brand="visa">VISA</span>
+                            <span class="pay-brand" data-brand="mastercard">Mastercard</span>
+                        </div>
+                    </div>
+                    <div class="pay-card">
+                        <div class="pay-card-top">
+                            <span class="pay-card-chip" aria-hidden="true"></span>
+                            <span class="pay-card-contactless" aria-hidden="true">)))</span>
+                        </div>
+                        <div class="pay-card-number" data-card-echo="number" aria-hidden="true">•••• •••• •••• ••••</div>
+                        <div class="pay-card-meta">
+                            <span class="pay-card-block">
+                                <span class="pay-card-caption">Владелец</span>
+                                <span class="pay-card-value" data-card-echo="holder" aria-hidden="true">ВАШЕ ИМЯ</span>
+                            </span>
+                            <span class="pay-card-block">
+                                <span class="pay-card-caption">Действует до</span>
+                                <span class="pay-card-value" data-card-echo="expiry" aria-hidden="true">ММ/ГГ</span>
+                            </span>
+                        </div>
+                        <div class="pay-card-cvc">
+                            <label class="pay-card-caption" for="{{ payment_form.cvc.id_for_label }}">CVC / CVV</label>
+                            {{ payment_form.cvc }}
+                        </div>
+                    </div>
+                </div>
+                {% if payment_form.non_field_errors or payment_form.errors %}
+                    <ul class="pay-form-errors">
+                        {% for field in payment_form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <div class="pay-actions">
+                    <button class="button" type="submit">Оплатить {{ total }} ₽ <span>→</span></button>
+                </div>
+            </form>
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'myapp/card-pay.js' %}" defer></script>
+{% endblock %}

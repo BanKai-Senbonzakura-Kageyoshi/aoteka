@@ -1,0 +1,50 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Сообщения · Careline{% endblock %}
+
+{% block content %}
+    <section class="directory-shell patient-inbox">
+        <p class="eyebrow">ВАША КОМАНДА ЗДОРОВЬЯ</p>
+        <h1>Сообщения врачам</h1>
+        <p class="muted">Здесь находятся ваши беседы и рекомендации специалистов.</p>
+        {% if appointment_requests %}
+            <h2 class="inbox-subheading">Запросы на приём</h2>
+            <div class="conversation-list appointment-list">
+                {% for appointment_request in appointment_requests %}
+                    <a class="conversation-preview appointment-preview" href="{% url 'appointment_detail' appointment_request.pk %}">
+                        <span class="doctor-avatar">{{ appointment_request.doctor.get_full_name|slice:':1'|upper }}</span>
+                        <span class="conversation-preview-copy">
+                            <strong>{{ appointment_request.doctor.get_full_name }}</strong>
+                            <span>{{ appointment_request.get_status_display }}</span>
+                            {% if appointment_request.status == 'PENDING' %}<span class="appointment-countdown" data-countdown="{{ appointment_request.expires_at|date:'c' }}">Ожидает ответа врача</span>{% endif %}
+                        </span>
+                        <span class="status-badge {{ appointment_request.status|lower }}">{{ appointment_request.get_status_display }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <h2 class="inbox-subheading">Беседы</h2>
+        <div class="conversation-list">
+            {% for conversation in conversations %}
+                <a class="conversation-preview" href="{% url 'conversation_detail' conversation.pk %}">
+                    <span class="doctor-avatar">{{ conversation.doctor.get_full_name|slice:':1'|upper }}</span>
+                    <span class="conversation-preview-copy">
+                        <strong>{{ conversation.doctor.get_full_name }}</strong>
+                        <span>{{ conversation.doctor.primary_specialty }}</span>
+                        {% with latest=conversation.messages.last %}
+                            {% if latest %}<span class="muted">{{ latest.body|default:'Отправлена рекомендация лекарства'|truncatechars:90 }}</span>{% endif %}
+                        {% endwith %}
+                    </span>
+                    <time class="muted" datetime="{{ conversation.updated_at|date:'c' }}">{{ conversation.updated_at|date:'d.m.Y' }}</time>
+                </a>
+            {% empty %}
+                <p class="empty">Бесед пока нет. Выберите врача в <a href="{% url 'doctor_directory' %}">каталоге специалистов</a>.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+    {% load static %}
+    <script src="{% static 'myapp/appointment_timer.js' %}" defer></script>
+{% endblock %}

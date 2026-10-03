@@ -1,0 +1,52 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Оплата прошла · Careline{% endblock %}
+
+{% block content %}
+    <section class="payment-success">
+        <div class="payment-success-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="34" height="34" fill="none">
+                <path d="M4.5 12.5l5 5 10-11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <p class="eyebrow">ОПЛАТА ПРОШЛА</p>
+        <h1>Заказ оплачен</h1>
+        <p class="muted">С карты списано {{ total }} ₽. Заказ <strong>#{{ order.pk }}</strong> отправлен фармацевту на проверку.</p>
+
+        <div class="payment-success-card">
+            <div class="payment-summary-row">
+                <span>Статус заказа</span>
+                <strong>{{ order.get_status_display }}</strong>
+            </div>
+            <div class="payment-summary-row">
+                <span>Оплата</span>
+                <strong>{{ order.get_payment_method_display }} · {{ order.get_payment_status_display }}</strong>
+            </div>
+            <div class="payment-summary-row">
+                <span>Аптека</span>
+                <strong>{{ pharmacy.name }}</strong>
+            </div>
+            <div class="payment-summary-row">
+                <span>Скидка</span>
+                <strong>{{ order.discount_percent }}%</strong>
+            </div>
+            <div class="payment-summary-items payment-success-items">
+                {% for item in items %}
+                    <div class="payment-summary-row">
+                        <span>{{ item.medicine.name }} × {{ item.quantity }}</span>
+                        <strong>{{ item.unit_price }} ₽</strong>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="payment-summary-total">
+                <span>Итого оплачено</span>
+                <strong>{{ total }} ₽</strong>
+            </div>
+        </div>
+
+        <div class="payment-success-actions">
+            <a class="button" href="{% url 'profile' %}">История заказов <span>→</span></a>
+            <a class="payment-back" href="{% url 'cart' %}">← Вернуться в корзину</a>
+        </div>
+    </section>
+{% endblock %}

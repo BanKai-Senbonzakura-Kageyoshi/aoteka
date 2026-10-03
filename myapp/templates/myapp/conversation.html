@@ -1,0 +1,76 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Переписка · Careline{% endblock %}
+
+{% block content %}
+    <section class="conversation-page {% if is_doctor %}doctor-thread{% else %}patient-thread{% endif %}">
+        <header class="conversation-header">
+            <a class="conversation-back" href="{% if is_doctor %}{% url 'doctor_portal' %}{% else %}{% url 'message_inbox' %}{% endif %}">← Все сообщения</a>
+            <div class="conversation-person">
+                <span class="doctor-avatar">{% if is_doctor %}{{ conversation.patient.user.get_full_name|default:conversation.patient.user.username|slice:':1'|upper }}{% else %}{{ conversation.doctor.get_full_name|slice:':1'|upper }}{% endif %}</span>
+                <div>
+                    <h1>{% if is_doctor %}{{ conversation.patient.user.get_full_name|default:conversation.patient.user.username }}{% else %}{{ conversation.doctor.get_full_name }}{% endif %}</h1>
+                    <p class="muted">{% if is_doctor %}Пациент{% else %}{{ conversation.doctor.primary_specialty }}{% endif %}</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="conversation-messages" aria-live="polite">
+            {% for message in messages_list %}
+                <article class="chat-message {% if message.sender_id == user.pk %}mine{% endif %}">
+                    <div class="chat-message-meta">
+                        <strong>{% if message.sender_id == conversation.doctor.user_id %}{{ conversation.doctor.get_full_name }}{% else %}{{ conversation.patient.user.get_full_name|default:conversation.patient.user.username }}{% endif %}</strong>
+                        <time datetime="{{ message.created_at|date:'c' }}">{{ message.created_at|date:'d.m.Y · H:i' }}</time>
+                    </div>
+                    {% if message.body %}<p>{{ message.body|linebreaksbr }}</p>{% endif %}
+                    {% if message.medicine and message.pharmacy %}
+                        <div class="recommendation-card">
+                            {% if message.medicine.image %}
+                                <img class="recommendation-image" src="{{ message.medicine.image.url }}" alt="{{ message.medicine.name }}">
+                            {% else %}
+                                <span class="medicine-packshot {{ message.medicine.dosage_form|lower }}" style="--pack-primary: {{ message.medicine.primary_color }}; --pack-secondary: {{ message.medicine.secondary_color }}" role="img" aria-label="{{ message.medicine.name }}"></span>
+                            {% endif %}
+                            <span class="recommendation-copy">
+                                <strong>{{ message.medicine.name }}</strong>
+                                <span>{{ message.medicine.get_dosage_form_display }} · {{ message.pharmacy.name }}</span>
+                                <b>{{ message.medicine.price }} ₽</b>
+                            </span>
+                            {% if not is_doctor and message.pharmacy.is_open and message.medicine.is_available %}
+                                <form method="post" action="{% url 'cart_add' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <input type="hidden" name="pharmacy_id" value="{{ message.pharmacy.pk }}">
+                                    <input type="hidden" name="medicine_id" value="{{ message.medicine.pk }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button class="button button-small" type="submit">Добавить в корзину</button>
+                                </form>
+                            {% elif not is_doctor %}
+                                <span class="muted">Сейчас недоступно</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p class="conversation-empty">Начните беседу: напишите сообщение ниже.</p>
+            {% endfor %}
+        </div>
+
+        <form method="post" class="conversation-compose">
+            {% csrf_token %}
+            {% if is_doctor %}
+                {{ form.non_field_errors }}
+                {{ form.body.errors }}
+                {{ form.body }}
+                <div class="recommendation-fields">
+                    <div>{{ form.pharmacy.label_tag }}{{ form.pharmacy }}{{ form.pharmacy.errors }}</div>
+                    <div>{{ form.medicine.label_tag }}{{ form.medicine }}{{ form.medicine.errors }}</div>
+                </div>
+                <button class="button" type="submit">Отправить пациенту</button>
+            {% else %}
+                <label for="patient-message">Сообщение врачу</label>
+                <textarea id="patient-message" name="body" rows="3" maxlength="4000" required placeholder="Опишите вопрос врачу"></textarea>
+                <button class="button" type="submit">Отправить</button>
+            {% endif %}
+        </form>
+    </section>
+{% endblock %}

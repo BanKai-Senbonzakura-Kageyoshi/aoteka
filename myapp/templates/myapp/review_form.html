@@ -1,0 +1,14 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Отзыв · Careline{% endblock %}
+
+{% block content %}
+    <section class="form-section">
+        <p class="eyebrow">ОТЗЫВ О ВРАЧЕ</p><h1>{{ doctor.get_full_name }}</h1><p class="muted">{{ doctor.specialty }}</p>
+        <form method="post" class="form-layout">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="button" type="submit">Отправить отзыв</button>
+        </form>
+    </section>
+{% endblock %}

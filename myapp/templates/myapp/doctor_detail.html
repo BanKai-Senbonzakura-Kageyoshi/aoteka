@@ -1,0 +1,67 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}{{ doctor.get_full_name }} · Careline{% endblock %}
+
+{% block content %}
+    <section class="doctor-profile-hero">
+        <div class="doctor-avatar doctor-profile-avatar">{{ doctor.get_full_name|slice:':1'|upper }}</div>
+        <div class="doctor-profile-copy">
+            <p class="eyebrow">ПРОФИЛЬ СПЕЦИАЛИСТА</p>
+            <h1>{{ doctor.get_full_name }}</h1>
+            <div class="doctor-specialties">
+                {% for specialty in doctor.specialty_list %}<span>{{ specialty }}</span>{% empty %}<span>{{ doctor.primary_specialty }}</span>{% endfor %}
+            </div>
+            <div class="doctor-profile-stats">
+                <span>★ {{ doctor.rating|floatformat:1 }}</span>
+                <span>{{ doctor.reviews_count }} отзывов</span>
+                <span>Приём от {{ doctor.consultation_price }} ₽</span>
+            </div>
+        </div>
+        <div class="doctor-profile-actions">
+            {% if can_book %}
+                <form method="post" action="{% url 'start_doctor_conversation' doctor.pk %}">
+                    {% csrf_token %}
+                    <button class="button" type="submit">Поговорить с врачом</button>
+                </form>
+                <span class="muted appointment-action-note">После подтверждения врача откроется чат. Ответ ожидается до 10 минут.</span>
+            {% elif can_message %}
+                <span class="muted">Врач сейчас не принимает запросы</span>
+            {% elif not user.is_authenticated %}
+                <a class="button" href="{% url 'login' %}">Войти и записаться</a>
+            {% endif %}
+            {% if can_review and not has_reviewed %}
+                <a class="button button-light" href="{% url 'doctor_review' doctor.pk %}">Оставить отзыв</a>
+            {% elif has_reviewed %}
+                <span class="muted">Вы уже оставили отзыв</span>
+            {% endif %}
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'doctor_favorite' doctor.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button class="favorite-toggle" type="submit" aria-pressed="{% if is_favorite %}true{% else %}false{% endif %}">★ {% if is_favorite %}В избранном{% else %}В избранное{% endif %}</button>
+                </form>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="section review-section">
+        <div class="section-heading">
+            <div><p class="eyebrow">ОПЫТ ПАЦИЕНТОВ</p><h2>Отзывы</h2></div>
+            <span class="rating">★ {{ doctor.rating|floatformat:1 }} · {{ doctor.reviews_count }}</span>
+        </div>
+        <div class="review-list">
+            {% for review in reviews %}
+                <article class="review-entry">
+                    <div class="review-entry-heading">
+                        <strong>{{ review.patient.user.get_full_name|default:review.patient.user.username }}</strong>
+                        <span class="rating">{{ review.rating }} / 5</span>
+                    </div>
+                    {% if review.comment %}<p>{{ review.comment|linebreaksbr }}</p>{% else %}<p class="muted">Пациент оставил оценку без комментария.</p>{% endif %}
+                    <time class="muted" datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:'d.m.Y' }}</time>
+                </article>
+            {% empty %}
+                <p class="empty">Пока нет отзывов. Ваш отзыв поможет другим пациентам.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

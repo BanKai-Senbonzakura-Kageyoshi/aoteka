@@ -1,0 +1,14 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Вход · Careline{% endblock %}
+
+{% block content %}
+    <section class="form-section">
+        <p class="eyebrow">ВОЗВРАЩАЙТЕСЬ</p><h1>Войти</h1>
+        <form method="post" class="form-layout">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="button" type="submit">Войти <span>→</span></button>
+        </form>
+    </section>
+{% endblock %}

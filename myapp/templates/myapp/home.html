@@ -1,0 +1,89 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Careline · Медицинская помощь{% endblock %}
+
+{% block content %}
+    <section class="urgent-strip">
+        <span class="urgent-dot"></span>
+        <p>При угрозе жизни обратитесь в местную экстренную службу.</p>
+        <span class="demo-number">ДЕМО-НОМЕР: 1488 · НЕ ЗВОНИТЬ</span>
+    </section>
+
+    <section class="welcome-grid">
+        <div class="welcome-copy">
+            <p class="eyebrow">МЕДИЦИНСКАЯ ПОМОЩЬ РЯДОМ</p>
+            <h1>С чего начнём?</h1>
+            <p class="intro">Опишите, что вас беспокоит, найдите специалиста или проверьте назначение врача.</p>
+            {% if user.is_authenticated %}
+                <a class="button" href="{% url 'assistant' %}">Подобрать специальность <span>→</span></a>
+            {% else %}
+                <a class="button" href="{% url 'login' %}?next={% url 'assistant' %}">Войти и продолжить <span>→</span></a>
+            {% endif %}
+        </div>
+        <div class="welcome-aside">
+            <span class="aside-number">01</span>
+            <p>Помощник только направляет к специальности. Он не ставит диагноз и не назначает лечение.</p>
+            <a href="{% url 'pharmacy_directory' %}">Выбрать аптеку →</a>
+        </div>
+    </section>
+
+    <section class="specialist-banner">
+        <div>
+            <p class="eyebrow">СПЕЦИАЛИСТЫ CARELINE</p>
+            <h2>Найдите врача, которому доверяете</h2>
+            <p class="muted">Выбор специалистов по направлениям, рейтингу и стоимости приёма.</p>
+        </div>
+        <a class="button" href="{% url 'doctor_directory' %}">Все врачи <span>→</span></a>
+    </section>
+
+    {% if user.is_authenticated and prescriptions %}
+        <section class="section prescription-section">
+            <div class="section-heading">
+                <div><p class="eyebrow">ВАШИ НАЗНАЧЕНИЯ</p><h2>Активные рецепты</h2></div>
+                {% if discount %}<span class="discount-tag">Ваша скидка: {{ discount.discount_percent }}%</span>{% endif %}
+            </div>
+            <div class="prescription-list">
+                {% for prescription in prescriptions %}
+                    <article class="prescription-row">
+                        <div>
+                            <strong>Рецепт #{{ prescription.pk }}</strong>
+                            <p>{{ prescription.doctor.get_full_name }} · {{ prescription.pharmacy.name }}</p>
+                            <span class="muted">{% for item in prescription.items.all %}{{ item.medicine.name }}{% if not forloop.last %}, {% endif %}{% empty %}Состав уточнит фармацевт{% endfor %}</span>
+                        </div>
+                        <form method="post" action="{% url 'medicine_order' prescription.pk %}">
+                            {% csrf_token %}
+                            <button class="button button-small" type="submit">Отправить в аптеку</button>
+                        </form>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <section class="section" id="doctors">
+        <div class="section-heading">
+            <div><p class="eyebrow">ПРИЁМ СЕГОДНЯ</p><h2>Свободные специалисты</h2></div>
+            <a class="text-link" href="{% url 'doctor_directory' %}">Открыть список врачей →</a>
+        </div>
+        <div class="doctor-grid">
+            {% for doctor in doctors %}
+                <a class="doctor-row doctor-row-link" href="{% url 'doctor_detail' doctor.pk %}" aria-label="Открыть профиль {{ doctor.get_full_name }}: отзывы и запись на приём">
+                    <div class="doctor-avatar">{{ doctor.get_full_name|slice:':1'|upper }}</div>
+                    <div class="doctor-info">
+                        <h3>{{ doctor.get_full_name }}</h3>
+                        <p>{{ doctor.specialty }}</p>
+                        <span class="rating">★ {{ doctor.rating }} <span class="muted">({{ doctor.reviews_count }} отзывов)</span></span>
+                    </div>
+                    <span class="doctor-row-action">Профиль и запись <span aria-hidden="true">→</span></span>
+                </a>
+            {% empty %}
+                <p class="empty">Сейчас свободных специалистов нет. Попробуйте позже.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section pharmacy-band">
+        <div><p class="eyebrow">АПТЕКА</p><h2>Назначенные препараты на первом месте</h2><p class="muted">Каталог показывает точные лекарства из активного рецепта. Аналоги подбирает фармацевт.</p></div>
+        <a class="button button-light" href="{% url 'pharmacy_directory' %}">Выбрать аптеку <span>→</span></a>
+    </section>
+{% endblock %}

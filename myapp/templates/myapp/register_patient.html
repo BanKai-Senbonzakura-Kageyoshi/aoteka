@@ -1,0 +1,26 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Регистрация пациента · Careline{% endblock %}
+
+{% block content %}
+    <section class="register-page patient-register-page">
+        <a class="registration-back" href="{% url 'register' %}">← Выбрать другой тип профиля</a>
+        <div class="register-page-grid">
+            <aside class="register-intro patient-intro">
+                <p class="eyebrow">CARELINE · ДЛЯ ПАЦИЕНТА</p>
+                <h1>Здоровье начинается с заботы</h1>
+                <p>Сохраняйте назначения, записывайтесь к специалистам и выбирайте аптеку.</p>
+            </aside>
+            <div class="register-form-panel">
+                <p class="eyebrow">ЛИЧНЫЙ АККАУНТ</p>
+                <h2>Регистрация пациента</h2>
+                <form method="post" class="form-layout">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="button" type="submit">Создать аккаунт</button>
+                </form>
+                <p class="register-login-link">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+            </div>
+        </div>
+    </section>
+{% endblock %}

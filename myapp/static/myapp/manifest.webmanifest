@@ -1,0 +1,19 @@
+{
+    "name": "Careline — врачи, аптеки, лекарства",
+    "short_name": "Careline",
+    "description": "Справочник врачей и аптек: запись на приём, чат со специалистом и заказы лекарств.",
+    "lang": "ru",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#fdf1f4",
+    "theme_color": "#ff5f74",
+    "icons": [
+        {
+            "src": "icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

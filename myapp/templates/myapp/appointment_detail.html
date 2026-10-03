@@ -1,0 +1,48 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+
+{% block title %}Запрос на приём · Careline{% endblock %}
+
+{% block content %}
+    <section class="appointment-page {% if is_doctor %}doctor-appointment-page{% else %}patient-appointment-page{% endif %}">
+        <a class="appointment-back" href="{% if is_doctor %}{% url 'doctor_portal' %}{% else %}{% url 'message_inbox' %}{% endif %}">← К списку запросов</a>
+        <p class="eyebrow">ЗАПИСЬ К ВРАЧУ</p>
+        <h1>{{ appointment_request.doctor.get_full_name }}</h1>
+        <p class="muted">{{ appointment_request.doctor.primary_specialty }} · {{ appointment_request.doctor.consultation_price }} ₽</p>
+        <div class="appointment-status-panel">
+            <span class="status-badge {{ appointment_request.status|lower }}">{{ appointment_request.get_status_display }}</span>
+            {% if appointment_request.status == 'PENDING' %}
+                <p>{% if is_doctor %}Примите запрос в течение 10 минут, чтобы начать чат с пациентом.{% else %}Врач ответит на запрос в течение 10 минут. После принятия откроется чат.{% endif %}</p>
+                <strong class="appointment-countdown appointment-clock" data-countdown="{{ appointment_request.expires_at|date:'c' }}">10:00</strong>
+            {% elif appointment_request.status == 'ACCEPTED' %}
+                <p>Приём подтверждён. Теперь можно обсудить подробности в чате.</p>
+                <div class="appointment-accepted-actions">
+                    {% if conversation %}<a class="button" href="{% url 'conversation_detail' conversation.pk %}">Перейти в чат</a>{% endif %}
+                    <a class="button button-light" href="https://meet.jitsi.org/careline-appointment-{{ appointment_request.pk }}" target="_blank" rel="noopener">Видеовстреча</a>
+                </div>
+            {% elif appointment_request.status == 'DECLINED' %}
+                <p>Врач не смог принять этот запрос. Выберите другого специалиста.</p>
+                <a class="button" href="{% url 'doctor_directory' %}">Найти врача</a>
+            {% else %}
+                <p>Время ответа истекло. Можно отправить новый запрос.</p>
+                <a class="button" href="{% url 'doctor_detail' appointment_request.doctor.pk %}">Повторить запись</a>
+            {% endif %}
+        </div>
+        {% if is_doctor and appointment_request.status == 'PENDING' %}
+            <div class="appointment-actions">
+                <form method="post">
+                    {% csrf_token %}<input type="hidden" name="action" value="accept">
+                    <button class="button" type="submit">Принять и открыть чат</button>
+                </form>
+                <form method="post">
+                    {% csrf_token %}<input type="hidden" name="action" value="decline">
+                    <button class="button button-light" type="submit">Отклонить</button>
+                </form>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'myapp/appointment_timer.js' %}" defer></script>
+{% endblock %}

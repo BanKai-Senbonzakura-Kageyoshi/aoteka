@@ -1,0 +1,98 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Врачи · Careline{% endblock %}
+
+{% block content %}
+    <section class="directory-shell">
+        <p class="eyebrow">СПЕЦИАЛИСТЫ</p>
+        <h1>Поиск врача</h1>
+        <p class="muted">Фильтрация по статусу, специальности, стоимости и отзывам.</p>
+
+        <form method="get" class="directory-toolbar">
+            <div class="catalog-filter-field">
+                <label for="q">Поиск</label>
+                <input id="q" type="text" name="q" value="{{ query }}" placeholder="Имя, специализация, статус">
+            </div>
+            <div class="catalog-filter-field">
+                <label for="sort">Сортировка</label>
+                <select id="sort" name="sort">
+                    <option value="rating" {% if sort == 'rating' %}selected{% endif %}>По рейтингу</option>
+                    <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Сначала дешевле</option>
+                    <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Сначала дороже</option>
+                    <option value="reviews" {% if sort == 'reviews' %}selected{% endif %}>По числу отзывов</option>
+                    <option value="name" {% if sort == 'name' %}selected{% endif %}>По имени (А–Я)</option>
+                </select>
+            </div>
+            <div class="catalog-filter-field">
+                <label for="status">Статус</label>
+                <select id="status" name="status">
+                    <option value="">Любой</option>
+                    {% for value, label in available_statuses %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="catalog-filter-field">
+                <label for="specialty">Специальность</label>
+                <select id="specialty" name="specialty">
+                    <option value="">Любая</option>
+                    {% for specialty in available_specialties %}
+                        <option value="{{ specialty }}" {% if specialty_filter == specialty %}selected{% endif %}>{{ specialty }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="catalog-filter-field">
+                <label for="min_price">Минимум</label>
+                <input id="min_price" type="number" name="min_price" value="{{ min_price }}" min="0" step="100">
+            </div>
+            <div class="catalog-filter-field">
+                <label for="max_price">Максимум</label>
+                <input id="max_price" type="number" name="max_price" value="{{ max_price }}" min="0" step="100">
+            </div>
+            <div class="catalog-filter-field">
+                <label>&nbsp;</label>
+                <button class="button" type="submit">Показать</button>
+            </div>
+        </form>
+
+        <div class="directory-grid">
+            {% for doctor in doctors %}
+                <article class="doctor-card">
+                    <div class="doctor-card-header">
+                        <div>
+                            <h3>{{ doctor.get_full_name }}</h3>
+                            <div class="doctor-card-meta">
+                                <span>★ {{ doctor.rating }}</span>
+                                <span>{{ doctor.reviews_count }} отзывов</span>
+                            </div>
+                        </div>
+                        <span class="status-badge {{ doctor.status|lower }}">{{ doctor.get_status_display }}</span>
+                    </div>
+                    <div class="doctor-specialties">
+                        {% for specialty in doctor.specialty_list %}
+                            <span>{{ specialty }}</span>
+                        {% empty %}
+                            <span>{{ doctor.primary_specialty }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="doctor-card-meta">
+                        <span>{{ doctor.user.email|default:'email не указан' }}</span>
+                    </div>
+                    <div class="action-row">
+                        <span class="price-pill">от {{ doctor.consultation_price }} ₽</span>
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'doctor_favorite' doctor.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                <button class="favorite-toggle" type="submit" aria-pressed="{% if doctor.pk in favorite_ids %}true{% else %}false{% endif %}" title="В избранное">★ {% if doctor.pk in favorite_ids %}В избранном{% else %}В избранное{% endif %}</button>
+                            </form>
+                        {% endif %}
+                        <a class="button button-small" href="{% url 'doctor_detail' doctor.pk %}">Профиль и отзывы</a>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty">По вашему запросу врачи не найдены.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

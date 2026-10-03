@@ -1,0 +1,26 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Регистрация врача · Careline{% endblock %}
+
+{% block content %}
+    <section class="register-page doctor-register-page">
+        <a class="registration-back" href="{% url 'register' %}">← Выбрать другой тип профиля</a>
+        <div class="register-page-grid">
+            <aside class="register-intro doctor-intro">
+                <p class="eyebrow">CARELINE · ДЛЯ СПЕЦИАЛИСТА</p>
+                <h1>Ваша практика, ближе к пациенту</h1>
+                <p>Укажите направления работы и начните принимать запросы после регистрации.</p>
+            </aside>
+            <div class="register-form-panel">
+                <p class="eyebrow">ПРОФЕССИОНАЛЬНЫЙ ПРОФИЛЬ</p>
+                <h2>Регистрация врача</h2>
+                <form method="post" class="form-layout">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="button" type="submit">Создать профиль врача</button>
+                </form>
+                <p class="register-login-link">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+            </div>
+        </div>
+    </section>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Корзина · Careline{% endblock %}
+
+{% block content %}
+    <p class="eyebrow">ПОКУПКИ</p>
+    <h1>Корзина</h1>
+    {% if cart_groups %}
+        <p class="muted">Скидка {{ discount_percent }}%. Оплатите заказ картой — заказ уходит фармацевту на проверку.</p>
+        {% for group in cart_groups %}
+            <section class="cart-group">
+                <div class="section-heading">
+                    <div><p class="eyebrow">АПТЕКА</p><h2>{{ group.pharmacy.name }}</h2><p class="muted">{{ group.pharmacy.address }}</p></div>
+                    <strong class="cart-total">Итого: {{ group.total }} ₽</strong>
+                </div>
+                <div class="cart-items">
+                    {% for item in group.items %}
+                        <article class="cart-item">
+                            {% if item.medicine.image %}
+                                <img class="cart-photo" src="{{ item.medicine.image.url }}" alt="{{ item.medicine.name }}">
+                            {% else %}
+                                <div class="cart-photo cart-photo-fallback">{{ item.medicine.get_dosage_form_display }}</div>
+                            {% endif %}
+                            <div class="cart-medicine-info">
+                                <h3>{{ item.medicine.name }}</h3>
+                                <p class="muted">{{ item.medicine.get_dosage_form_display }} · {{ item.unit_price }} за шт.</p>
+                            </div>
+                            <form method="post" action="{% url 'cart_item_update' item.pk %}" class="cart-quantity-form">
+                                {% csrf_token %}
+                                <label>Кол-во <input type="number" name="quantity" min="1" max="99" value="{{ item.quantity }}" required></label>
+                                <button class="button button-secondary button-small" type="submit">Обновить</button>
+                            </form>
+                            <strong>{{ item.line_total }}</strong>
+                            <form method="post" action="{% url 'cart_item_remove' item.pk %}">
+                                {% csrf_token %}
+                                <button class="link-button remove-button" type="submit">Убрать</button>
+                            </form>
+                        </article>
+                    {% endfor %}
+                </div>
+                <div class="pay-actions">
+                    <p class="payment-disclaimer">Учебная оплата: на следующем шаге вы введёте данные карты — они не сохраняются и не отправляются.</p>
+                    <a class="button" href="{% url 'cart_checkout' group.pharmacy.pk %}">Оплатить {{ group.total }} ₽ <span>→</span></a>
+                </div>
+            </section>
+        {% endfor %}
+    {% else %}
+        <section class="empty-cart">
+            <h2>Корзина пока пуста</h2>
+            <p class="muted">Выберите аптеку и добавьте лекарства из каталога.</p>
+            <a class="button" href="{% url 'pharmacy_directory' %}">Выбрать аптеку <span>→</span></a>
+        </section>
+    {% endif %}
+{% endblock %}

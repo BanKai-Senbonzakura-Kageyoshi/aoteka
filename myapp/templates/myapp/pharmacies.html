@@ -1,0 +1,57 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Аптеки · Careline{% endblock %}
+
+{% block content %}
+    <section class="directory-shell">
+        <p class="eyebrow">АПТЕЧНАЯ СЕТЬ</p>
+        <h1>Аптеки рядом</h1>
+        <p class="muted">Выбирайте по рейтингу, адресу и удобству.</p>
+
+        <form method="get" class="directory-toolbar">
+            <div class="catalog-filter-field">
+                <label for="q">Поиск</label>
+                <input id="q" type="text" name="q" value="{{ query }}" placeholder="Название или адрес">
+            </div>
+            <div class="catalog-filter-field">
+                <label for="sort">Сортировка</label>
+                <select id="sort" name="sort">
+                    <option value="rating" {% if sort == 'rating' %}selected{% endif %}>По рейтингу</option>
+                    <option value="reviews" {% if sort == 'reviews' %}selected{% endif %}>По числу отзывов</option>
+                    <option value="name" {% if sort == 'name' %}selected{% endif %}>По названию (А–Я)</option>
+                </select>
+            </div>
+            <div class="catalog-filter-field">
+                <label>&nbsp;</label>
+                <button class="button" type="submit">Найти</button>
+            </div>
+        </form>
+
+        <div class="directory-grid">
+            {% for pharmacy in pharmacies %}
+                <article class="pharmacy-card">
+                    <div class="doctor-card-header">
+                        <div>
+                            <h3>{{ pharmacy.name }}</h3>
+                            <div class="pharmacy-card-meta">
+                                <span>{{ pharmacy.address }}</span>
+                            </div>
+                        </div>
+                        <span class="rating-badge">★ {{ pharmacy.rating }}</span>
+                    </div>
+                    <p class="muted">{{ pharmacy.description|default:'Аптека с широким ассортиментом лекарств и готовыми рецептами.' }}</p>
+                    <div class="pharmacy-card-meta">
+                        <span>{{ pharmacy.review_count }} отзывов</span>
+                        <span>{{ pharmacy.medicines.count }} позиций</span>
+                    </div>
+                    <div class="action-row">
+                        <span class="price-pill">Открыта</span>
+                        <a class="button button-small" href="{% url 'pharmacy_detail' pharmacy.pk %}">Открыть аптеку</a>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty">Аптеки не найдены.</p>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

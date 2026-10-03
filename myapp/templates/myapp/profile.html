@@ -1,0 +1,43 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Профиль · Careline{% endblock %}
+
+{% block content %}
+    <p class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</p><h1>{{ patient.user.username }}</h1>
+    <div class="profile-grid">
+        <section class="profile-panel"><p class="eyebrow">СТАТУС</p><h2>{{ patient.get_intent_display }}</h2><p>Уровень обращения: {{ patient.get_urgency_display }}</p><p>Приоритет: {{ patient.priority }}</p></section>
+        <section class="profile-panel"><p class="eyebrow">ПЕРСОНАЛЬНАЯ СКИДКА</p><h2>{{ patient.discount.discount_percent }}%</h2><a href="{% url 'pharmacy_directory' %}">Перейти в аптеку →</a></section>
+    </div>
+    <section class="profile-panel wallet-history">
+        <p class="eyebrow">ИСТОРИЯ ЗАКАЗОВ</p>
+        <h2>Последние заказы</h2>
+        {% for order in orders %}
+            <div class="wallet-transaction-row">
+                <span>Заказ #{{ order.pk }} · {{ order.pharmacy.name }} · {{ order.created_at|date:'d.m.Y H:i' }} · {{ order.get_status_display }}</span>
+                <strong class="order-amount">{{ order.total_amount }} ₽</strong>
+            </div>
+        {% empty %}
+            <p class="muted">Заказов пока нет.</p>
+        {% endfor %}
+    </section>
+    <section class="profile-panel">
+        <p class="eyebrow">ИЗБРАННОЕ</p>
+        <h2>Избранные врачи</h2>
+        {% for favorite in favorites %}
+            <div class="favorite-list-row">
+                <div>
+                    <a href="{% url 'doctor_detail' favorite.doctor.pk %}">{{ favorite.doctor.get_full_name }}</a>
+                    <span class="muted">{{ favorite.doctor.primary_specialty }} · ★ {{ favorite.doctor.rating }}</span>
+                </div>
+                <form method="post" action="{% url 'doctor_favorite' favorite.doctor.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <button class="favorite-toggle" type="submit" aria-pressed="true">★ Убрать</button>
+                </form>
+            </div>
+        {% empty %}
+            <p class="muted">Пока пусто. Отмечайте врачей звёздочкой в каталоге — они появятся здесь.</p>
+        {% endfor %}
+    </section>
+    <a class="button" href="{% url 'assistant' %}">Описать симптомы</a>
+{% endblock %}

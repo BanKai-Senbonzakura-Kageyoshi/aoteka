@@ -1,0 +1,53 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}Навигатор симптомов · Careline{% endblock %}
+
+{% block content %}
+    <a class="back-link" href="{% url 'home' %}">← На главную</a>
+    <section class="assistant-layout">
+        <div class="assistant-main">
+            <p class="eyebrow">СПРАВОЧНАЯ МАРШРУТИЗАЦИЯ</p>
+            <h1>Что вас беспокоит?</h1>
+            <p class="muted">Опишите симптомы своими словами. Сервис предложит специальность, но не поставит диагноз.</p>
+            <form method="post" class="form-layout">
+                {% csrf_token %}
+                {{ form.description.label_tag }}
+                {{ form.description }}
+                <div class="consent-field">{{ form.consent_to_ai }} {{ form.consent_to_ai.label_tag }}</div>
+                <p class="help-note">Без согласия описание обрабатывается только локальными ключевыми словами. С согласием оно передаётся Google Gemini только для выбора специальности.</p>
+                <button class="button" type="submit">Найти специальность <span>→</span></button>
+            </form>
+        </div>
+        <aside class="safety-note">
+            <span class="safety-icon">!</span>
+            <h2>Нужна срочная помощь?</h2>
+            <p>При затруднённом дыхании, потере сознания, сильном кровотечении или угрозе жизни немедленно обратитесь в местную экстренную службу.</p>
+            <strong class="demo-number">1488 · ДЕМО, НЕ ЗВОНИТЬ</strong>
+        </aside>
+    </section>
+
+    {% if is_critical %}
+        <section class="result-panel critical-panel" role="alert">
+            <p class="eyebrow">СРОЧНО</p>
+            <h2>Обратитесь за экстренной помощью</h2>
+            <p>{{ message }}</p>
+        </section>
+    {% elif specialty %}
+        <section class="result-panel">
+            <p class="eyebrow">ПРЕДЛОЖЕННАЯ СПЕЦИАЛЬНОСТЬ</p>
+            <h2>{{ specialty }}</h2>
+            <p>{{ message }}</p>
+            <div class="doctor-grid">
+                {% for doctor in doctors %}
+                    <article class="doctor-row">
+                        <div class="doctor-avatar">{{ doctor.get_full_name|slice:':1'|upper }}</div>
+                        <div class="doctor-info"><h3>{{ doctor.get_full_name }}</h3><p>{{ doctor.specialty }}</p><span class="rating">★ {{ doctor.rating }}</span></div>
+                        <a class="text-link" href="{% url 'doctor_review' doctor.pk %}">Отзывы</a>
+                    </article>
+                {% empty %}
+                    <p class="empty">Свободных специалистов этой специальности сейчас нет.</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

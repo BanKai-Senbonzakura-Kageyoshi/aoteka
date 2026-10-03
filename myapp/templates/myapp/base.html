@@ -1,0 +1,101 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Careline{% endblock %}</title>
+    <meta name="description" content="Careline — справочник врачей, аптек и лекарств: поиск, запись на приём, чат со специалистом и заказы.">
+    <meta name="theme-color" content="#ff5f74">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Careline">
+    <meta property="og:title" content="Careline — врачи, аптеки и лекарства онлайн">
+    <meta property="og:description" content="Найдите врача, проверьте наличие лекарств и запишитесь на приём онлайн.">
+    <meta property="og:locale" content="ru_RU">
+    <link rel="icon" href="{% static 'myapp/icon.svg' %}" type="image/svg+xml">
+    <link rel="manifest" href="{% static 'myapp/manifest.webmanifest' %}">
+    <script>
+        /* Тема до первой отрисовки: без «мигания» белого экрана */
+        (function () {
+            var theme = null;
+            try { theme = localStorage.getItem('careline-theme'); } catch (e) {}
+            if (theme !== 'light' && theme !== 'dark') {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            document.documentElement.dataset.theme = theme;
+            document.addEventListener('click', function (event) {
+                var button = event.target.closest && event.target.closest('.theme-toggle');
+                if (!button) return;
+                var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+                document.documentElement.dataset.theme = next;
+                try { localStorage.setItem('careline-theme', next); } catch (e) {}
+            });
+        })();
+    </script>
+    <link rel="stylesheet" href="{% static 'myapp/style.css' %}?v=20261003-card-3">
+    <link rel="stylesheet" href="{% static 'myapp/refresh.css' %}?v=20261003-card-3">
+    <link rel="stylesheet" href="{% static 'myapp/motion.css' %}?v=20261003-card-3">
+    {% if user.is_authenticated and user.medical_profile.primary_role == 'DOCTOR' %}
+        <link rel="stylesheet" href="{% static 'myapp/doctor_portal.css' %}?v=20261003-card-3">
+    {% endif %}
+    <!-- macOS-слой темы: палитра, живой фон, стекло, Apple-easing (последним) -->
+    <link rel="stylesheet" href="{% static 'myapp/macos.css' %}?v=20261003-card-4">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-left">
+            <a class="brand" href="{% url 'home' %}"><span class="brand-mark">+</span> Careline</a>
+            <button class="search-open" type="button" aria-label="Поиск по сайту">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.7"/><path d="M10.8 10.8L14.5 14.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                <span>Поиск</span>
+                <kbd>Ctrl K</kbd>
+            </button>
+            <button class="theme-toggle" type="button" aria-label="Переключить светлую и тёмную тему" title="Светлая / тёмная тема">
+                <span class="theme-toggle-glyph" aria-hidden="true"></span>
+            </button>
+        </div>
+        <button class="mobile-menu-toggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="primary-navigation">⋮</button>
+        <nav class="navigation" id="primary-navigation">
+            <a href="{% url 'doctor_directory' %}">Врачи</a>
+            <a href="{% url 'pharmacy_directory' %}">Аптеки</a>
+            {% if user.is_authenticated %}
+                {% if user.medical_profile.primary_role == 'DOCTOR' %}
+                    <a href="{% url 'doctor_portal' %}">Кабинет врача</a>
+                {% else %}
+                    <a href="{% url 'message_inbox' %}">Сообщения</a>
+                {% endif %}
+                <a class="cart-nav-link" href="{% url 'cart' %}">
+                    <span>Корзина</span>
+                    {% with cart_count=user.shopping_cart_items.count %}
+                        {% if cart_count %}<span class="cart-count" aria-label="Позиций в корзине: {{ cart_count }}">{{ cart_count }}</span>{% endif %}
+                    {% endwith %}
+                </a>
+                <a href="{% url 'profile' %}">Профиль</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="link-button" type="submit">Выйти</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">Войти</a>
+                <a class="nav-register" href="{% url 'register' %}">Регистрация</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <main class="container {% if user.is_authenticated and user.medical_profile.primary_role == 'DOCTOR' %}doctor-theme{% endif %}">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">Справочная информация не заменяет медицинскую помощь.</footer>
+    <script src="{% static 'myapp/mobile-menu.js' %}" defer></script>
+    <script src="{% static 'myapp/motion.js' %}?v=20261003-1" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

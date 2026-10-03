@@ -1,0 +1,68 @@
+{% extends 'myapp/base.html' %}
+
+{% block title %}{{ pharmacy.name }} · Careline{% endblock %}
+
+{% block content %}
+    <section class="pharmacy-hero">
+        <div>
+            <p class="eyebrow">АПТЕКА</p>
+            <h1>{{ pharmacy.name }}</h1>
+            <p class="muted">{{ pharmacy.address }}</p>
+            <div class="stats-row">
+                <span class="stat-pill">★ {{ pharmacy.rating }}</span>
+                <span class="stat-pill">{{ pharmacy.review_count }} отзывов</span>
+                <span class="stat-pill">Открыто сейчас</span>
+            </div>
+        </div>
+        <div class="sidebar-card">
+            <h3>О сети</h3>
+            <p class="muted">{{ pharmacy.description|default:'Круглосуточный ассортимент, удобная выдача рецептов и быстрый подбор аналогов.' }}</p>
+        </div>
+    </section>
+
+    <section class="pharmacy-grid">
+        <div>
+            <div class="section-heading">
+                <div><p class="eyebrow">ЛЕКАРСТВА</p><h2>Ассортимент</h2></div>
+            </div>
+            <div class="med-list">
+                {% for medicine in medicines %}
+                    <div class="med-row">
+                        {% if medicine.image %}
+                            <img class="med-thumb" src="{{ medicine.image.url }}" alt="{{ medicine.name }}">
+                        {% else %}
+                            <div class="med-thumb"></div>
+                        {% endif %}
+                        <div>
+                            <strong>{{ medicine.name }}</strong>
+                            <span class="muted">{{ medicine.dosage_form }}</span>
+                        </div>
+                        <div>
+                            <strong>{{ medicine.price }} ₽</strong>
+                            {% if user.is_authenticated %}
+                                <form method="post" action="{% url 'cart_add' %}" class="medicine-cart-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <input type="hidden" name="pharmacy_id" value="{{ pharmacy.pk }}">
+                                    <input type="hidden" name="medicine_id" value="{{ medicine.pk }}">
+                                    <label>Кол-во <input type="number" name="quantity" min="1" max="99" value="1" required></label>
+                                    <button class="button button-small" type="submit">В корзину</button>
+                                </form>
+                            {% else %}
+                                <a class="button button-small" href="{% url 'login' %}">Войти для покупки</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="empty">В этой аптеке пока нет доступных лекарств.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <aside class="sidebar-card">
+            <h3>Как работает</h3>
+            <p class="muted">Выбирайте лекарства в ассортименте аптеки, добавляйте в корзину и оплачивайте заказ картой при оформлении.</p>
+            <a class="button" href="{% url 'pharmacy_directory' %}">Другие аптеки</a>
+        </aside>
+    </section>
+{% endblock %}

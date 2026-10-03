@@ -1,0 +1,1435 @@
+/* ==========================================================================
+   Careline — «macOS-слой» темы (подключается ПОСЛЕДНИМ в base.html)
+   --------------------------------------------------------------------------
+   1. Палитра и дизайн-токены
+   2. Живой фон: mesh-градиент + плавающие цветные пятна
+   3. Матовое стекло (frosted glass / backdrop-filter)
+   4. Скругления 12-20px и микро-границы
+   5. Apple-easing: cubic-bezier(.16, 1, .3, 1)
+   6. Hover / active микроинтеракции
+   7. Формы и фокус-кольца
+   8. Типографика (SF Pro / system UI)
+   9. Появление элементов (fade-in + slide-up)
+    10. Тёмные поверхности (hairline)
+    11. Кабинет врача
+    12. Мобильная адаптация
+    13. prefers-reduced-motion
+    14. Дополнительная перекраска
+    15. Логотип
+    16. Кастомные <select>
+    17. Экономия ресурсов (low-fps)
+    18. Тёмная тема (html[data-theme="dark"])
+    19. Новый UI: тумблер темы, поиск ⌘K, скролл, избранное
+
+   Слой меняет ТОЛЬКО визуальный стиль: разметка, сетки и порядок блоков
+   не трогаются. Анимации построены на transform / opacity (60 FPS).
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. ПАЛИТРА И ДИЗАЙН-ТОКЕНЫ
+   Имена переменных сохранены — весь существующий CSS подхватит их сам.
+   ========================================================================== */
+:root {
+    color-scheme: light;
+
+    /* --- Шрифты: системный стек в духе SF Pro --- */
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text",
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display",
+                    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* --- Фон и текст --- */
+    --paper: #fdf1f4;        /* холодный «бумажный» фон */
+    --ink: #241c22;          /* глубокий сине-графитовый текст */
+    --muted: #7f6470;        /* вторичный текст */
+    --line: #f0e2e7;         /* светлая граница панелей */
+    --white: #ffffff;
+
+    /* --- Фирменный дуэт «коралл + пудра» --- */
+    --green: #ff5f74;        /* коралловый акцент */
+    --green-dark: #e0455d;   /* глубокий коралл: ссылки, hover */
+    --blue: #ff8fa3;         /* пудрово-розовый акцент: фокус, инфо */
+    --navy: #4a2437;
+    --mint: #fff0f2;
+    --soft: #fff0f4;
+    --amber: #d9912e;
+    --red: #d6455f;
+    --sky: #fff0f2;
+
+    /* --- Глубокие градиенты акцентов --- */
+    --accent-coral: #ff7a8c;
+    --accent-blue: #ff8fa3;
+    --accent-violet: #ff5f74;
+    --accent-mint: #ff9fb1;
+
+    /* --- Матовое стекло --- */
+    --glass: rgba(255, 255, 255, .8);        /* полупрозрачная панель */
+    --glass-strong: rgba(255, 255, 255, .8);  /* плотнее: шапка, формы */
+    --glass-border: rgba(255, 255, 255, .72); /* светящаяся кромка стекла */
+    --glass-blur: blur(20px) saturate(180%);  /* сильное размытие фона */
+    --hairline: rgba(255, 255, 255, .1);      /* микро-граница 1px (тёмные панели) */
+    --glass-highlight: rgba(255, 255, 255, .9); /* внутренний блик inset-тенью */
+    --edge-hover: #ffffff;                    /* подсветка кромки при наведении */
+
+    /* --- Скругления в стиле macOS --- */
+    --radius-s: 12px;
+    --radius-m: 16px;
+    --radius-l: 20px;
+
+    /* --- Единая кривая плавности Apple --- */
+    --ease-apple: cubic-bezier(.16, 1, .3, 1);
+
+    /* --- Мягкие объёмные тени --- */
+    --shadow: 0 12px 28px rgba(28, 29, 46, .09);
+    --shadow-hover: 0 18px 40px rgba(28, 29, 46, .16);
+}
+
+
+/* ==========================================================================
+   2. ЖИВОЙ ФОН: mesh-градиент + плавающие цветные пятна
+   --------------------------------------------------------------------------
+   Только псевдоэлементы (html::before, body::before/::after,
+   .container::before) — HTML-разметка не меняется.
+
+   Все слои position: fixed и двигаются исключительно через transform
+   (аппаратно ускоренное свойство). Цикл 34-46 секунд: движение медленное,
+   плавное и ненавязчивое.
+   ========================================================================== */
+
+/* Корневой фон страницы — на него «садятся» прозрачные пятна */
+html { background-color: var(--paper); }
+
+/* Сам body делаем прозрачным, иначе его фон перекроет пятна */
+body {
+    position: relative;
+    background: transparent;
+    background-image: none;
+    background-attachment: scroll;
+}
+
+/* Базовый статичный mesh-градиент (мягкие цветовые зоны) */
+html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+    background:
+        radial-gradient(58% 46% at 12% 6%, rgba(255, 255, 255, .95), transparent 62%),
+        radial-gradient(52% 44% at 88% 4%, rgba(255, 95, 116, .18), transparent 65%),
+        radial-gradient(60% 50% at 82% 94%, rgba(255, 143, 163, .16), transparent 66%),
+        linear-gradient(165deg, #fff2f6 0%, #fdf1f4 48%, #fff3f6 100%);
+}
+
+/* Общие параметры двух крупных пятен */
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    z-index: -2;
+    width: min(64vw, 720px);
+    height: min(64vw, 720px);
+    border-radius: 50%;
+    pointer-events: none;
+    /* blur() НЕ используется: мягкие многостоповые радиальные градиенты
+       дают тот же «аурный» вид без дорогого GPU-прохода */
+    will-change: transform;  /* слой закреплён за композитором */
+}
+
+/* Коралловое пятно (слева сверху) */
+body::before {
+    top: -16vh;
+    left: -14vw;
+    background: radial-gradient(circle at 38% 38%, rgba(255, 143, 163, .40) 0%, rgba(255, 143, 163, .18) 42%, rgba(255, 143, 163, 0) 72%);
+    animation: blob-flow-a 34s ease-in-out infinite;
+}
+
+/* Синее пятно (справа снизу) */
+body::after {
+    right: -14vw;
+    bottom: -20vh;
+    background: radial-gradient(circle at 58% 58%, rgba(255, 95, 116, .38) 0%, rgba(255, 95, 116, .17) 42%, rgba(255, 95, 116, 0) 72%);
+    animation: blob-flow-b 46s ease-in-out infinite;
+}
+
+/* Третье, фиолетово-мятное пятно у контентного контейнера */
+.container::before {
+    content: "";
+    position: fixed;
+    z-index: -2;
+    top: 34vh;
+    right: -12vw;
+    width: min(54vw, 640px);
+    height: min(54vw, 640px);
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(236, 72, 153, .26) 0%, rgba(255, 159, 177, .13) 45%, transparent 72%);
+    will-change: transform;
+    animation: blob-flow-c 40s ease-in-out infinite;
+}
+
+/* Медленные «прогулки» пятен — плавные и ненавязчивые */
+@keyframes blob-flow-a {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    50%  { transform: translate3d(10vw, 8vh, 0) scale(1.14); }
+    100% { transform: translate3d(2vw, 16vh, 0) scale(.96); }
+}
+@keyframes blob-flow-b {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    50%  { transform: translate3d(-9vw, -7vh, 0) scale(1.1); }
+    100% { transform: translate3d(-3vw, -14vh, 0) scale(1.02); }
+}
+@keyframes blob-flow-c {
+    0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+    50%  { transform: translate3d(-12vw, -6vh, 0) scale(1.18) rotate(8deg); }
+    100% { transform: translate3d(4vw, 6vh, 0) scale(.94) rotate(-6deg); }
+}
+
+
+/* ==========================================================================
+   3. МАТОВОЕ СТЕКЛО (frosted glass)
+   Полупрозрачные панели + сильное backdrop-filter, светящаяся кромка 1px
+   и внутренний блик inset-тенью.
+   ========================================================================== */
+:is(
+    .topbar,
+    .directory-shell,
+    .form-section,
+    .profile-panel,
+    .cart-group,
+    .empty-cart,
+    .medicine-card,
+    .doctor-row,
+    .doctor-card,
+    .pharmacy-card,
+    .review-section,
+    .conversation-page,
+    .appointment-page,
+    .prescription-section,
+    .assistant-main,
+    .result-panel,
+    .welcome-aside,
+    .sidebar-card,
+    .pharmacy-select,
+    .registration-choice-card,
+    .register-page-grid,
+    .messages .message,
+    .payment-summary,
+    .payment-card-panel
+) {
+    background: var(--glass);
+    border-color: var(--glass-border);
+    box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Размытие фона оставлено ТОЛЬКО у шапки: один backdrop-слой вместо
+   десятков — страница остаётся «стеклянной», но не грузит слабый GPU */
+.topbar {
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+}
+
+/* Янтарная предупреждающая полоса: тёплое стекло */
+.urgent-strip {
+    background: linear-gradient(90deg, rgba(255, 247, 230, .88), rgba(255, 250, 243, .76));
+    border-color: rgba(217, 145, 46, .38);
+    box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Панели ассистента: полупрозрачное «тёплое» стекло */
+.safety-note {
+    background: linear-gradient(140deg, rgba(255, 250, 240, .88), rgba(255, 244, 217, .8));
+    box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+}
+.critical-panel {
+    background: linear-gradient(135deg, rgba(255, 243, 241, .9), rgba(255, 250, 248, .84));
+}
+
+/* Тосты (сообщения Django) на стекле */
+.message {
+    border-left-color: var(--blue);
+    background: rgba(255, 240, 244, .84);
+}
+.message.error { background: rgba(255, 240, 237, .85); }
+.message.success {
+    background: linear-gradient(110deg, rgba(255, 240, 244, .86), rgba(255, 241, 243, .8));
+}
+
+
+/* ==========================================================================
+   4. СКРУГЛЕНИЯ (12-20px) И МИКРО-ГРАНИЦЫ
+   Все радиусы нормализованы под шкалу macOS.
+   ========================================================================== */
+.topbar { border-radius: 18px; }
+
+:is(
+    .directory-shell, .profile-panel, .cart-group, .empty-cart,
+    .assistant-main, .form-section, .result-panel, .review-section,
+    .prescription-section, .welcome-aside, .pharmacy-select,
+    .registration-choice-card, .register-page-grid, .pharmacy-band,
+    .specialist-banner, .conversation-page, .appointment-page,
+    .doctor-profile-hero, .pharmacy-hero, .doctor-workspace
+) { border-radius: var(--radius-l); }
+
+:is(
+    .doctor-row, .doctor-card, .pharmacy-card, .medicine-card,
+    .sidebar-card, .med-row, .urgent-strip, .safety-note,
+    .chat-message, .recommendation-card, .stat-pill,
+    .appointment-status-panel, .doctor-status-panel
+) { border-radius: var(--radius-m); }
+
+/* Поля ввода — 12px, как системные формы macOS */
+input, textarea, select { border-radius: var(--radius-s); }
+
+/* Кнопка мобильного меню */
+.mobile-menu-toggle { border-radius: 14px; }
+
+
+/* ==========================================================================
+   5. APPLE-EASING: единая кривая cubic-bezier(.16, 1, .3, 1)
+   Старые cubic-bezier(.2,.8,.2,1) перекрыты здесь для всех ключевых
+   элементов; вёрстка и тайминги (длительности/задержки) не меняются.
+   ========================================================================== */
+
+/* --- Карточки и панели --- */
+:is(
+    .doctor-row, .doctor-card, .pharmacy-card, .medicine-card, .med-row,
+    .prescription-section, .profile-panel, .sidebar-card, .review-section,
+    .registration-choice-card, .welcome-aside, .urgent-strip, .stat-pill,
+    .pharmacy-select, .directory-shell, .cart-group, .assistant-main,
+    .result-panel, .doctor-profile-hero, .pharmacy-hero
+) {
+    transition:
+        transform .35s var(--ease-apple),
+        box-shadow .35s var(--ease-apple),
+        background-color .25s var(--ease-apple),
+        border-color .25s var(--ease-apple);
+}
+
+/* --- Кнопки --- */
+.button {
+    transition:
+        transform .3s var(--ease-apple),
+        box-shadow .3s var(--ease-apple);
+}
+.button::before { transition: left .45s var(--ease-apple); }
+
+/* --- Навигация --- */
+.navigation a {
+    transition:
+        color .25s var(--ease-apple),
+        background-color .25s var(--ease-apple),
+        transform .25s var(--ease-apple);
+}
+.navigation a::after { transition: transform .35s var(--ease-apple); }
+.brand { transition: transform .35s var(--ease-apple); }
+
+/* --- Ссылки --- */
+:is(.text-link, .back-link, .conversation-back, .appointment-back,
+    .register-login-link, .link-button, .doctor-row-link) {
+    transition:
+        color .25s var(--ease-apple),
+        transform .3s var(--ease-apple),
+        background-color .25s var(--ease-apple),
+        border-color .25s var(--ease-apple);
+}
+
+/* --- Строки списков --- */
+:is(.review-entry, .conversation-preview) {
+    transition:
+        background-color .25s var(--ease-apple),
+        transform .3s var(--ease-apple),
+        border-color .25s var(--ease-apple);
+}
+
+/* --- Поля форм --- */
+input, textarea, select {
+    transition:
+        border-color .25s var(--ease-apple),
+        box-shadow .25s var(--ease-apple),
+        background-color .25s var(--ease-apple);
+}
+
+/* --- Мобильное меню --- */
+@media (max-width: 720px) {
+    .navigation a, .navigation .link-button {
+        transition:
+            color .22s var(--ease-apple),
+            background-color .22s var(--ease-apple),
+            transform .22s var(--ease-apple);
+    }
+    .navigation.is-open { animation-timing-function: var(--ease-apple); }
+    .mobile-menu-toggle {
+        transition:
+            color .25s var(--ease-apple),
+            background-color .25s var(--ease-apple),
+            transform .3s var(--ease-apple);
+    }
+}
+
+
+/* ==========================================================================
+   6. HOVER / ACTIVE МИКРОИНТЕРАКЦИИ
+   Подъём + лёгкое увеличение, объёмная тень, отклик при нажатии.
+   ========================================================================== */
+:is(
+    .doctor-row, .doctor-card, .pharmacy-card, .medicine-card, .med-row,
+    .prescription-section, .profile-panel, .sidebar-card, .review-section,
+    .welcome-aside
+):hover {
+    transform: translateY(-4px) scale(1.012);
+    box-shadow: var(--shadow-hover), inset 0 1px 0 var(--glass-highlight);
+    border-color: var(--edge-hover);
+}
+
+/* Карточки выбора регистрации — чуть отзывчивее */
+.registration-choice-card:hover {
+    transform: translateY(-5px) scale(1.014);
+    box-shadow: var(--shadow-hover), inset 0 1px 0 var(--glass-highlight);
+    border-color: var(--edge-hover);
+}
+.registration-choice-card:active { transform: translateY(-1px) scale(.99); }
+
+/* Предупреждающая полоса */
+.urgent-strip:hover {
+    transform: translateY(-3px) scale(1.006);
+    box-shadow: 0 24px 46px rgba(217, 145, 46, .16), inset 0 1px 0 var(--glass-highlight);
+}
+
+/* Пилюли-статистики */
+.stat-pill:hover {
+    transform: translateY(-2px) scale(1.03);
+    background: rgba(255, 255, 255, .85);
+    border-color: var(--edge-hover);
+    box-shadow: 0 10px 20px rgba(28, 29, 46, .10);
+}
+
+/* Ссылка-карточка врача в списках */
+.doctor-row-link:hover {
+    transform: translateY(-3px) scale(1.008);
+    background: linear-gradient(110deg, rgba(255, 255, 255, .9), rgba(255, 240, 244, .88));
+    border-color: var(--edge-hover);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Строки переписки */
+.conversation-preview:hover {
+    background: rgba(255, 143, 163, .08);
+    transform: translateX(4px);
+}
+
+/* --- Кнопки --- */
+.button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 14px 30px rgba(255, 95, 116, .32);
+}
+.button:active {
+    /* «Отжим» при нажатии — короткая длительность для тактильности */
+    transform: translateY(0) scale(.965);
+    transition-duration: .12s;
+}
+.button-light:active,
+.button-secondary:active { transform: scale(.965); }
+
+/* Пункты меню */
+.navigation a:hover {
+    background-color: rgba(255, 143, 163, .10);
+    transform: translateY(-1px);
+}
+.navigation a:active { transform: scale(.97); }
+.link-button:hover { color: var(--green-dark); transform: translateY(-1px); }
+.link-button:active { transform: scale(.96); }
+
+/* Бренд */
+.brand:hover { transform: scale(1.03); }
+
+/* Ссылки-стрелочки */
+:is(.text-link, .back-link, .conversation-back, .appointment-back):hover {
+    transform: translateX(4px);
+}
+
+
+/* ==========================================================================
+   7. ФОРМЫ И ФОКУС-КОЛЬЦА
+   Стеклянные поля + чистое фокус-кольцо без «подпрыгивания».
+   ========================================================================== */
+input, textarea, select {
+    border: 1px solid rgba(28, 29, 46, .14);
+    background: rgba(255, 255, 255, .85);
+    color: var(--ink);
+}
+input:hover, textarea:hover, select:hover { border-color: rgba(255, 143, 163, .45); }
+input:focus, textarea:focus, select:focus {
+    border-color: var(--blue);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(255, 143, 163, .18);
+    transform: none;
+}
+input[type="checkbox"], input[type="radio"] { accent-color: var(--blue); }
+
+/* Единое фокус-кольцо для ссылок и кнопок */
+:is(a, button, .button):focus-visible {
+    outline: 2px solid rgba(255, 143, 163, .6);
+    outline-offset: 2px;
+}
+
+
+/* ==========================================================================
+   8. ТИПОГРАФИКА (SF Pro / system UI)
+   ========================================================================== */
+body {
+    font-family: var(--font-ui);
+    color: var(--ink);
+    line-height: 1.55;
+}
+h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -.02em;
+}
+h1 { font-weight: 650; }
+h2 { font-weight: 640; }
+
+/* Точечные замены локальных шрифтов (Georgia / Trebuchet) */
+:is(
+    .conversation-person h1,
+    .doctor-workspace-header h1,
+    .doctor-panel-heading h2,
+    .doctor-side-note h2,
+    .inbox-subheading,
+    .registration-choice-card strong,
+    .appointment-clock,
+    .doctor-stat-number,
+    .doctor-empty-state span,
+    .register-form-panel h2
+) {
+    font-family: var(--font-display);
+    letter-spacing: -.015em;
+}
+.appointment-clock { font-variant-numeric: tabular-nums; font-weight: 650; }
+.eyebrow { color: var(--green-dark); letter-spacing: .1em; }
+
+
+/* ==========================================================================
+   9. ПОЯВЛЕНИЕ ЭЛЕМЕНТОВ (fade-in + slide-up)
+   Кейфреймы переобъявлены с более выраженными сдвигами по Y (позиция в
+   документе решает: последнее определение выигрывает). Длительности и
+   задержки остаются исходными, меняется только кривая.
+   ========================================================================== */
+@keyframes rise-in {
+    from { opacity: 0; transform: translate3d(0, 18px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes care-rise {
+    from { opacity: 0; transform: translate3d(0, 16px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes reveal-up {
+    from { opacity: 0; transform: translate3d(0, 26px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes page-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes menu-arrive {
+    from { opacity: 0; transform: translate3d(0, -8px, 0) scale(.985); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes toast-in {
+    from { opacity: 0; transform: translate3d(0, -14px, 0) scale(.97); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes bubble-in {
+    from { opacity: 0; transform: translate3d(0, 14px, 0) scale(.96); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes bubble-in-mine {
+    from { opacity: 0; transform: translate3d(10px, 14px, 0) scale(.96); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* Apple-кривая для всех групп появления */
+:is(
+    .container > section, .directory-shell, .form-section, .profile-panel,
+    .cart-group, .empty-cart, .medicine-card, .doctor-row, .doctor-card,
+    .pharmacy-card, .review-section, .pharmacy-hero, .conversation-page,
+    .appointment-page, .prescription-section, .welcome-grid,
+    .specialist-banner, .urgent-strip
+) { animation-timing-function: var(--ease-apple); }
+
+.container,
+.topbar,
+.footer,
+.message,
+.chat-message,
+.form-layout p,
+.navigation.is-open { animation-timing-function: var(--ease-apple); }
+
+/* Сетки карточек — ступенчатое появление */
+:is(.directory-grid, .medicine-grid) > :nth-child(4n + 1),
+:is(.directory-grid, .medicine-grid) > :nth-child(4n + 2),
+:is(.directory-grid, .medicine-grid) > :nth-child(4n + 3) {
+    animation-timing-function: var(--ease-apple);
+}
+
+
+/* ==========================================================================
+   10. ТЁМНЫЕ ПОВЕРХНОСТИ: микро-граница 1px solid rgba(255,255,255,.1)
+   ========================================================================== */
+.pharmacy-band,
+.register-intro,
+.doctor-intro {
+    border: 1px solid var(--hairline);
+}
+/* Бесконечный color-drift перекрашивает фон КАЖДЫЙ кадр — на слабой
+   машине это заметные фризы. Оставляем статичные градиенты. */
+.pharmacy-band,
+.specialist-banner,
+.button { animation: none; }
+
+
+/* ==========================================================================
+   11. КАБИНЕТ ВРАЧА (doctor_portal.css имеет более высокую специфичность,
+   поэтому здесь — точечные дублирующие правила на новую тему)
+   ========================================================================== */
+.doctor-theme .topbar {
+    background: var(--glass);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-color: var(--glass-border);
+}
+.doctor-theme .button {
+    transition:
+        transform .3s var(--ease-apple),
+        box-shadow .3s var(--ease-apple);
+}
+.doctor-theme .button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 14px 30px rgba(255, 95, 116, .32);
+}
+.doctor-theme .button:active { transform: scale(.965); transition-duration: .12s; }
+
+/* Рабочая область врача — стеклянная панель с «докторским» градиентом */
+.doctor-workspace {
+    background: linear-gradient(145deg, rgba(255, 242, 245, .88), rgba(255, 255, 255, .82) 54%, rgba(255, 248, 237, .86));
+    border-color: var(--glass-border);
+    box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+}
+.doctor-status-panel,
+.doctor-conversations-panel,
+.doctor-side-note {
+    background: var(--glass);
+    border-color: var(--glass-border);
+    box-shadow: 0 12px 30px rgba(28, 29, 46, .08), inset 0 1px 0 var(--glass-highlight);
+}
+.doctor-side-note {
+    background: linear-gradient(145deg, rgba(255, 240, 244, .8), rgba(255, 241, 243, .76));
+}
+.doctor-conversation-link {
+    transition:
+        background-color .4s var(--ease-apple),
+        transform .45s var(--ease-apple);
+}
+.doctor-conversation-link:hover {
+    background: rgba(255, 143, 163, .08);
+    transform: translateX(3px);
+}
+
+
+/* ==========================================================================
+   12. МОБИЛЬНАЯ АДАПТАЦИЯ (та же тема, тот же easing)
+   ========================================================================== */
+@media (max-width: 720px) {
+    .navigation {
+        background: var(--glass-strong);
+        -webkit-backdrop-filter: var(--glass-blur);
+        backdrop-filter: var(--glass-blur);
+        border-color: var(--glass-border);
+        box-shadow: 0 22px 48px rgba(28, 29, 46, .18);
+    }
+    .navigation a:hover, .navigation .link-button:hover {
+        background: rgba(255, 143, 163, .10);
+        color: var(--blue);
+    }
+    .mobile-menu-toggle {
+        background: linear-gradient(145deg, #ffffff, #ffeef2);
+        border-color: rgba(28, 29, 46, .12);
+        color: var(--blue);
+    }
+    .mobile-menu-toggle[aria-expanded="true"] {
+        background: linear-gradient(135deg, var(--green), var(--blue));
+        color: #fff;
+    }
+}
+
+
+/* ==========================================================================
+   13. УВАЖЕНИЕ К prefers-reduced-motion
+   Движущийся фон и все переходы отключаются полностью.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+    body::before,
+    body::after,
+    .container::before {
+        animation: none !important;
+        will-change: auto;
+    }
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+
+/* ==========================================================================
+   14. ДОПОЛНИТЕЛЬНАЯ ПЕРЕКРАСКА (точечные правила поверх старых слоёв)
+   ========================================================================== */
+
+/* Своё сообщение в чате — лавандовое стекло */
+.chat-message.mine {
+    border-color: rgba(255, 95, 116, .28);
+    background: rgba(255, 95, 116, .10);
+}
+
+/* Сумма заказа в истории — акцентная */
+.order-amount { color: #0d8f85; }
+
+/* Активный переключатель режима регистрации */
+.mode-card.active { background: linear-gradient(135deg, #ff7a8c, #ff8fa3); }
+
+/* Плашка «из рецепта» и категории — лавандовые */
+.doctor-specialties span,
+.medicine-categories span,
+.discount-tag,
+.prescribed-tag,
+.price-pill,
+.nav-register {
+    background: #fff0f3;
+    color: #e0455d;
+}
+
+
+/* ==========================================================================
+   15. ЛОГОТИП
+   «Плитка»-сквиркл с медкрестиком + градиентный вордмарк.
+   Крестик собран из двух псевдоэлементов — HTML не меняется,
+   текстовый «+» просто скрывается через font-size: 0.
+   ========================================================================== */
+.brand {
+    gap: 3px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    /* градиентный вордмарк Careline */
+    background: linear-gradient(120deg, #ff5f74, #ff8fa3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-mark {
+    position: relative;
+    display: inline-grid;
+    width: 30px;
+    height: 30px;
+    margin-right: 8px;
+    place-items: center;
+    border-radius: 10px;               /* сквиркл в духе macOS */
+    font-size: 0;                      /* прячем текстовый «+» */
+    background: linear-gradient(145deg, #ff7a8c 0%, #ff5f74 48%, #ff8fa3 100%);
+    box-shadow:
+        0 6px 16px rgba(255, 95, 116, .35),
+        inset 0 1px 0 rgba(255, 255, 255, .5);
+    transition: box-shadow .35s var(--ease-apple);
+}
+.brand-mark::before,
+.brand-mark::after {
+    content: "";
+    position: absolute;
+    border-radius: 2px;
+    background: #fff;
+}
+.brand-mark::before { width: 13px; height: 3.5px; }   /* горизонталь креста */
+.brand-mark::after  { width: 3.5px; height: 13px; }   /* вертикаль креста */
+
+/* Мягкое свечение при наведении */
+.brand:hover .brand-mark {
+    box-shadow:
+        0 10px 24px rgba(255, 143, 163, .45),
+        inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+
+
+/* ==========================================================================
+   16. ВЫБОР ОБЪЕКТОВ: кастомные <select>
+   «Любой / Любая» (статус, специальность), аптека, категория лекарства.
+   Нативный вид отключён: свой фон, своя «стрелка» (SVG-дата-URI),
+   мягкие hover/focus состояния на Apple-easing.
+   ========================================================================== */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    min-height: 44px;
+    padding: 9px 38px 9px 12px;
+    background-color: rgba(255, 255, 255, .85);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1.5 1.75L6 6.25L10.5 1.75' stroke='%23e0455d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition:
+        border-color .25s var(--ease-apple),
+        box-shadow .25s var(--ease-apple),
+        background-color .25s var(--ease-apple);
+}
+select:hover { border-color: rgba(255, 143, 163, .5); }
+select:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 4px rgba(255, 143, 163, .18);
+}
+
+/* Раскрывающийся список (нативный дропдаун) */
+select option {
+    background: #ffffff;
+    color: var(--ink);
+    font-weight: 500;
+}
+
+/* Первый «пустой» пункт (Любой / Любая / Все категории) — приглушаем */
+select:has(option[value=""]:checked) {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+
+/* ==========================================================================
+   17. ЭКОМИЯ РЕСУРСОВ НА СЛАБЫХ МАШИНАХ
+   ========================================================================== */
+/* На мобильных прячем третье фоновое пятно */
+@media (max-width: 720px) {
+    .container::before { display: none; }
+}
+
+/* Если система просит меньше прозрачности — выключаем размытие шапки */
+@media (prefers-reduced-transparency: reduce) {
+    .topbar {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
+/* «Лёгкий режим»: класс low-fps ставит JS, если средний FPS ниже 40 —
+   отключает фоновую анимацию и размытие, оставляя стеклянный вид */
+html.low-fps body::before,
+html.low-fps body::after,
+html.low-fps .container::before { animation: none; }
+html.low-fps .topbar {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+
+/* ==========================================================================
+   18. ТЁМНАЯ ТЕМА — html[data-theme="dark"]
+   Выбор хранится в localStorage и применяется крошечным inline-скриптом
+   в <head> (до первой отрисовки — без «мигания» белого). Здесь — только
+   токены и точечные override'ы поверх светлых правил старых слоёв.
+   ========================================================================== */
+html[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Фон и текст */
+    --paper: #16121a;
+    --ink: #e9eaf3;
+    --muted: #b0939b;
+    --line: rgba(255, 255, 255, .12);
+    --white: #1e161d;
+
+    /* Акценты светят ярче на тёмном */
+    --green: #ff6f85;
+    --green-dark: #ff96a6;
+    --blue: #ffa3b3;
+    --navy: #ffd9e0;
+    --mint: #2a161d;
+    --soft: #241a22;
+    --amber: #f0b45f;
+    --red: #ff8296;
+    --sky: #2a161d;
+
+    --accent-coral: #ff7a8c;
+    --accent-blue: #ffa3b3;
+    --accent-violet: #ff6f85;
+    --accent-mint: #ffadbd;
+
+    /* Стекло становится «дымчатым», кромки — тонкой светлой линией */
+    --glass: rgba(27, 29, 41, .82);
+    --glass-strong: rgba(22, 24, 34, .92);
+    --glass-border: rgba(255, 255, 255, .14);
+    --glass-highlight: rgba(255, 255, 255, .06);
+    --edge-hover: rgba(255, 255, 255, .4);
+
+    --shadow: 0 12px 28px rgba(0, 0, 0, .45);
+    --shadow-hover: 0 18px 40px rgba(0, 0, 0, .6);
+
+    /* Вуаль для оверлеев (поиск) */
+    --palette-veil: rgba(10, 11, 16, .55);
+}
+
+/* Светлая тема — вуаль для оверлеев (здесь, чтобы токен был всегда) */
+:root { --palette-veil: rgba(240, 241, 248, .55); }
+
+/* --- Живой фон в тёмном: та же композиция, приглушённые акценты --- */
+html[data-theme="dark"]::before {
+    background:
+        radial-gradient(58% 46% at 12% 6%, rgba(255, 111, 133, .14), transparent 62%),
+        radial-gradient(52% 44% at 88% 4%, rgba(255, 111, 133, .17), transparent 65%),
+        radial-gradient(60% 50% at 82% 94%, rgba(255, 163, 179, .12), transparent 66%),
+        linear-gradient(165deg, #16151f 0%, #16121a 48%, #0f1a1c 100%);
+}
+html[data-theme="dark"] body::before {
+    background: radial-gradient(circle at 38% 38%, rgba(255, 163, 179, .22) 0%, rgba(255, 163, 179, .10) 42%, rgba(255, 163, 179, 0) 72%);
+}
+html[data-theme="dark"] body::after {
+    background: radial-gradient(circle at 58% 58%, rgba(255, 111, 133, .24) 0%, rgba(255, 111, 133, .11) 42%, rgba(255, 111, 133, 0) 72%);
+}
+html[data-theme="dark"] .container::before {
+    background: radial-gradient(circle, rgba(236, 72, 153, .16) 0%, rgba(255, 173, 189, .09) 45%, transparent 72%);
+}
+
+/* --- Кнопки --- */
+html[data-theme="dark"] .button {
+    background: linear-gradient(115deg, #ff6f85, #ffa3b3, #ff7a8c, #ff5f74);
+    background-size: 240% 240%;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, .45);
+}
+html[data-theme="dark"] .button:hover { box-shadow: 0 14px 30px rgba(255, 111, 133, .35); }
+html[data-theme="dark"] .button-light {
+    background: rgba(255, 255, 255, .07);
+    border-color: rgba(255, 255, 255, .18);
+    color: var(--blue);
+}
+html[data-theme="dark"] .button-secondary {
+    background: rgba(255, 111, 133, .16);
+    border-color: rgba(255, 111, 133, .35);
+    color: #ffb3c0;
+}
+
+/* --- Поля форм --- */
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+    background-color: rgba(255, 255, 255, .06);
+    border-color: rgba(255, 255, 255, .16);
+    color: var(--ink);
+}
+html[data-theme="dark"] input:hover,
+html[data-theme="dark"] textarea:hover,
+html[data-theme="dark"] select:hover { border-color: rgba(255, 163, 179, .5); }
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color: rgba(154, 161, 184, .75); }
+
+/* Стрелка кастомного select — светлая версия */
+html[data-theme="dark"] select {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1.5 1.75L6 6.25L10.5 1.75' stroke='%23ffa3b3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+}
+html[data-theme="dark"] select option {
+    background: #1e161d;
+    color: var(--ink);
+}
+
+/* Оплата картой: поле CVC живёт на цветной карточке — оставляем светлым */
+html[data-theme="dark"] .pay-card-cvc input {
+    background: rgba(255, 255, 255, .95);
+    border-color: rgba(255, 255, 255, .8);
+    color: #3a2a31;
+}
+html[data-theme="dark"] .pay-card-cvc input:focus { border-color: #fff; outline-color: rgba(255, 255, 255, .45); }
+html[data-theme="dark"] .pay-label { color: var(--muted); }
+html[data-theme="dark"] .pay-brand { background: rgba(255, 255, 255, .07); border-color: rgba(255, 255, 255, .16); color: var(--muted); }
+html[data-theme="dark"] .pay-brand.is-active { background: rgba(255, 111, 133, .16); border-color: rgba(255, 111, 133, .45); color: #ffb3c0; }
+html[data-theme="dark"] .payment-summary-total strong { color: #ff9aa8; }
+html[data-theme="dark"] .payment-success { background: linear-gradient(145deg, rgba(30, 22, 29, .92), rgba(22, 18, 26, .92)); border-color: rgba(255, 255, 255, .14); }
+html[data-theme="dark"] .payment-success-card { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .12); }
+html[data-theme="dark"] .payment-success-items { border-top-color: rgba(255, 255, 255, .14); }
+html[data-theme="dark"] .pay-form-errors { background: rgba(255, 130, 150, .14); color: #ffb0bd; border-left-color: var(--red); }
+html[data-theme="dark"] .payment-back { color: var(--green-dark); }
+html[data-theme="dark"] .pay-card { box-shadow: 0 22px 44px rgba(0, 0, 0, .5); }
+
+/* --- Чипы, пилюли, бейджи --- */
+html[data-theme="dark"] .doctor-specialties span,
+html[data-theme="dark"] .medicine-categories span,
+html[data-theme="dark"] .discount-tag,
+html[data-theme="dark"] .prescribed-tag,
+html[data-theme="dark"] .price-pill,
+html[data-theme="dark"] .nav-register {
+    background: rgba(255, 111, 133, .18);
+    color: #ffb3c0;
+}
+html[data-theme="dark"] .status-badge.free { background: rgba(255, 111, 133, .2); color: #ffb3c0; }
+html[data-theme="dark"] .status-badge.busy { background: rgba(240, 180, 95, .18); color: #f0b45f; }
+html[data-theme="dark"] .status-badge.offline { background: rgba(255, 255, 255, .1); color: #c3aab1; }
+html[data-theme="dark"] .status-badge.vacation { background: rgba(255, 163, 179, .16); color: #ffc2cd; }
+html[data-theme="dark"] .status-badge.emergency { background: rgba(255, 130, 150, .16); color: #ff9aa8; }
+html[data-theme="dark"] .rating-badge { background: rgba(240, 180, 95, .16); color: #f5c15b; }
+html[data-theme="dark"] .cart-count { border-color: #16121a; }
+
+/* --- Тёплые и «красные» панели --- */
+html[data-theme="dark"] .urgent-strip {
+    background: linear-gradient(90deg, rgba(62, 46, 22, .6), rgba(46, 38, 24, .45));
+    border-color: rgba(240, 180, 95, .35);
+    color: #f0cf9a;
+}
+html[data-theme="dark"] .urgent-strip:hover {
+    box-shadow: 0 24px 46px rgba(0, 0, 0, .5), inset 0 1px 0 var(--glass-highlight);
+}
+html[data-theme="dark"] .safety-note {
+    background: linear-gradient(140deg, rgba(54, 44, 24, .55), rgba(60, 50, 28, .45));
+}
+html[data-theme="dark"] .safety-icon { background: rgba(240, 180, 95, .2); color: var(--amber); }
+html[data-theme="dark"] .critical-panel {
+    background: linear-gradient(135deg, rgba(74, 32, 36, .55), rgba(60, 32, 34, .45));
+}
+html[data-theme="dark"] .payment-disclaimer {
+    background: rgba(255, 111, 133, .12);
+    border-left-color: var(--green);
+    color: var(--muted);
+}
+
+/* --- Поверхности, у которых в старых слоях зашиты светлые градиенты --- */
+html[data-theme="dark"] .appointment-status-panel {
+    background: linear-gradient(120deg, rgba(255, 111, 133, .16), rgba(27, 29, 41, .6) 75%, rgba(255, 163, 179, .12));
+    border-color: rgba(255, 255, 255, .14);
+}
+html[data-theme="dark"] .appointment-preview {
+    background: linear-gradient(100deg, rgba(240, 180, 95, .1), rgba(27, 29, 41, .5));
+    border-color: rgba(240, 180, 95, .3);
+}
+html[data-theme="dark"] .pharmacy-hero,
+html[data-theme="dark"] .doctor-profile-hero {
+    background: linear-gradient(135deg, rgba(255, 163, 179, .12), rgba(255, 111, 133, .14));
+}
+html[data-theme="dark"] .doctor-profile-stats span {
+    background: rgba(255, 255, 255, .06);
+    border-color: var(--line);
+}
+html[data-theme="dark"] .specialist-banner {
+    background: linear-gradient(112deg, rgba(255, 111, 133, .14), rgba(27, 29, 41, .5) 42%, rgba(255, 163, 179, .12) 76%, rgba(240, 180, 95, .1));
+    border-color: rgba(255, 255, 255, .14);
+}
+html[data-theme="dark"] .med-row {
+    background: rgba(255, 255, 255, .05);
+    border-color: var(--line);
+}
+html[data-theme="dark"] .med-thumb {
+    background: linear-gradient(135deg, rgba(255, 111, 133, .2), rgba(255, 163, 179, .16));
+}
+html[data-theme="dark"] .stat-pill {
+    background: rgba(255, 255, 255, .06);
+    border-color: var(--line);
+}
+html[data-theme="dark"] .stat-pill:hover {
+    background: rgba(255, 255, 255, .1);
+    border-color: var(--edge-hover);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, .4);
+}
+html[data-theme="dark"] .chat-message {
+    background: rgba(255, 255, 255, .06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+html[data-theme="dark"] .chat-message.mine {
+    background: rgba(255, 111, 133, .18);
+    border-color: rgba(255, 111, 133, .4);
+}
+html[data-theme="dark"] .recommendation-card {
+    background: rgba(255, 255, 255, .05);
+    border-color: var(--line);
+}
+html[data-theme="dark"] .conversation-messages {
+    background: linear-gradient(180deg, rgba(20, 22, 31, .7), rgba(24, 26, 36, .6));
+}
+html[data-theme="dark"] .doctor-avatar {
+    background: linear-gradient(135deg, rgba(255, 111, 133, .25), rgba(255, 163, 179, .18));
+    color: #ffb3c0;
+}
+html[data-theme="dark"] .mode-card { background: rgba(255, 255, 255, .06); }
+html[data-theme="dark"] .registration-icon {
+    background: linear-gradient(135deg, rgba(255, 111, 133, .22), rgba(255, 163, 179, .16));
+    color: #ffb3c0;
+}
+html[data-theme="dark"] .medicine-viewer {
+    background: radial-gradient(ellipse at 50% 45%, rgba(255, 255, 255, .1), rgba(20, 24, 36, .9));
+}
+html[data-theme="dark"] .catalog-product-mark {
+    background: linear-gradient(145deg, rgba(70, 42, 36, .5), rgba(60, 40, 50, .5));
+    border-color: rgba(255, 255, 255, .16);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, .4);
+}
+html[data-theme="dark"] .doctor-row-link:hover {
+    background: linear-gradient(110deg, rgba(255, 255, 255, .08), rgba(255, 111, 133, .1));
+    border-color: var(--edge-hover);
+}
+
+/* --- Акцентный текст --- */
+html[data-theme="dark"] .order-amount { color: #ffc2cd; }
+html[data-theme="dark"] .payment-disclaimer { background: rgba(255, 111, 133, .12); color: var(--muted); border-left-color: var(--green); }
+html[data-theme="dark"] .appointment-countdown,
+html[data-theme="dark"] .appointment-clock { color: #ff9b8f; }
+html[data-theme="dark"] .footer { color: var(--muted); }
+html[data-theme="dark"] .brand {
+    background: linear-gradient(120deg, #ff8fa3, #ffc2cd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+html[data-theme="dark"] .safety-note a, html[data-theme="dark"] .critical-panel a { color: var(--blue); }
+
+/* --- Мобильное меню --- */
+@media (max-width: 720px) {
+    html[data-theme="dark"] .mobile-menu-toggle {
+        background: linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 111, 133, .14));
+        border-color: rgba(255, 255, 255, .16);
+        color: var(--blue);
+    }
+    html[data-theme="dark"] .navigation { box-shadow: 0 22px 48px rgba(0, 0, 0, .6); }
+}
+
+/* --- Кабинет врача в тёмном --- */
+html[data-theme="dark"] .doctor-theme {
+    --doctor-ink: #f6e4e9;
+    --doctor-blue: #ff96a6;
+    --doctor-lime: rgba(240, 198, 111, .18);
+    --doctor-line: rgba(255, 255, 255, .14);
+}
+html[data-theme="dark"] .doctor-note-mark { color: #f5cf8a; }
+html[data-theme="dark"] .doctor-workspace {
+    background: linear-gradient(145deg, rgba(30, 32, 46, .7), rgba(24, 26, 36, .6) 54%, rgba(40, 34, 26, .6));
+    box-shadow: var(--shadow), inset 0 1px 0 var(--glass-highlight);
+}
+html[data-theme="dark"] .doctor-side-note {
+    background: linear-gradient(145deg, rgba(255, 111, 133, .14), rgba(255, 163, 179, .1));
+}
+html[data-theme="dark"] .doctor-count { background: rgba(255, 255, 255, .08); }
+html[data-theme="dark"] .doctor-conversation-link { border-bottom-color: rgba(255, 255, 255, .1); }
+html[data-theme="dark"] .doctor-conversation-link:hover { background: rgba(255, 163, 179, .1); }
+html[data-theme="dark"] .doctor-patient-avatar { background: rgba(255, 111, 133, .18); }
+html[data-theme="dark"] .doctor-status-dot.free { box-shadow: 0 0 0 4px rgba(255, 111, 133, .25); }
+html[data-theme="dark"] .doctor-theme .conversation-header {
+    background: linear-gradient(110deg, rgba(58, 40, 48, .6), rgba(24, 26, 36, .5));
+}
+html[data-theme="dark"] .doctor-theme .conversation-messages {
+    background: linear-gradient(180deg, rgba(24, 32, 44, .6), rgba(24, 26, 36, .5));
+}
+html[data-theme="dark"] .doctor-theme .chat-message.mine {
+    background: rgba(255, 163, 179, .14);
+    border-color: rgba(255, 163, 179, .35);
+}
+html[data-theme="dark"] .doctor-theme .button { box-shadow: 0 12px 24px rgba(0, 0, 0, .45); }
+
+
+/* ==========================================================================
+   19. НОВЫЙ UI: тумблер темы, глобальный поиск ⌘K, скролл-интерфейс,
+       избранное. Разметка кнопок добавлена в base.html, палитра поиска
+       и элементы скролла создаются JS (без правок в шаблонах страниц).
+   ========================================================================== */
+
+/* --- Левая группа шапки: бренд + поиск + тема --- */
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* --- Кнопка переключения темы (полукруг → заливка) --- */
+.theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    background: var(--glass);
+    color: var(--ink);
+    cursor: pointer;
+    transition:
+        transform .3s var(--ease-apple),
+        background-color .25s var(--ease-apple),
+        border-color .25s var(--ease-apple);
+}
+.theme-toggle:hover { transform: scale(1.08); border-color: var(--edge-hover); }
+.theme-toggle:active { transform: scale(.92); transition-duration: .1s; }
+
+.theme-toggle-glyph {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    overflow: hidden;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+}
+.theme-toggle-glyph::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    border-radius: 50%;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform .4s var(--ease-apple);
+}
+html[data-theme="dark"] .theme-toggle-glyph::after { transform: scaleX(1); }
+
+/* --- Кнопка глобального поиска (⌘K / Ctrl+K) --- */
+.search-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    background: var(--glass);
+    color: var(--muted);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        border-color .25s var(--ease-apple),
+        color .25s var(--ease-apple),
+        transform .3s var(--ease-apple);
+}
+.search-open:hover {
+    border-color: var(--edge-hover);
+    color: var(--ink);
+    transform: translateY(-1px);
+}
+.search-open kbd {
+    padding: 3px 6px;
+    border: 0;
+    border-radius: 6px;
+    background: rgba(255, 143, 163, .12);
+    color: var(--blue);
+    font: 600 11px/1 var(--font-ui);
+}
+@media (max-width: 720px) {
+    .search-open span, .search-open kbd { display: none; }
+    .search-open { padding: 0; width: 36px; justify-content: center; }
+}
+
+/* --- Оверлей глобального поиска --- */
+.palette-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    align-items: start;
+    justify-items: center;
+    padding: 12vh 16px 16px;
+    background: var(--palette-veil);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    animation: palette-fade .2s var(--ease-apple) both;
+}
+.palette-overlay[hidden] { display: none; }
+
+.palette {
+    width: min(620px, 100%);
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-l);
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, .35), inset 0 1px 0 var(--glass-highlight);
+    animation: palette-pop .3s var(--ease-apple) both;
+}
+
+.palette-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+}
+.palette .palette-field input {
+    flex: 1;
+    min-height: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 16px;
+    outline: none;
+    transform: none;
+}
+.palette .palette-field input:focus {
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.palette-results {
+    display: grid;
+    gap: 2px;
+    max-height: min(52vh, 420px);
+    overflow-y: auto;
+    padding: 8px;
+}
+.palette-group {
+    padding: 12px 10px 5px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+.palette-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-s);
+    color: var(--ink);
+    text-decoration: none;
+    transition:
+        background-color .2s var(--ease-apple),
+        transform .25s var(--ease-apple);
+}
+.palette-item:hover,
+.palette-item.is-active {
+    background: rgba(255, 143, 163, .12);
+    transform: translateX(3px);
+}
+.palette-item strong { display: block; font-size: 14px; font-weight: 650; }
+.palette-item span { display: block; color: var(--muted); font-size: 12px; }
+.palette-empty {
+    padding: 26px 16px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 14px;
+}
+.palette-hint {
+    display: flex;
+    gap: 16px;
+    padding: 10px 18px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 11px;
+}
+
+@keyframes palette-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes palette-pop {
+    from { opacity: 0; transform: translate3d(0, 14px, 0) scale(.98); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* --- Скролл-прогресс и кнопка «Наверх» (создаются JS) --- */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 70;
+    height: 3px;
+    pointer-events: none;
+}
+.scroll-progress span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--blue));
+    transition: width .12s linear;
+}
+
+.back-to-top {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 55;
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    background: var(--glass-strong);
+    color: var(--green-dark);
+    font-size: 18px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(14px) scale(.9);
+    pointer-events: none;
+    transition:
+        opacity .3s var(--ease-apple),
+        transform .35s var(--ease-apple),
+        border-color .25s var(--ease-apple);
+}
+.back-to-top.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.back-to-top:hover { border-color: var(--edge-hover); transform: translateY(-3px); }
+
+/* --- «В избранное» на карточке врача --- */
+.favorite-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--glass);
+    color: var(--muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background-color .25s var(--ease-apple),
+        border-color .25s var(--ease-apple),
+        color .25s var(--ease-apple),
+        transform .3s var(--ease-apple);
+}
+.favorite-toggle:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--amber) 55%, transparent); }
+.favorite-toggle[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--amber) 16%, transparent);
+    border-color: color-mix(in srgb, var(--amber) 45%, transparent);
+    color: var(--amber);
+}
+.favorite-toggle:active { transform: scale(.96); transition-duration: .1s; }
+
+/* Кнопка на панели профиля — компактная строка списка */
+.favorite-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+}
+.favorite-list-row:last-child { border-bottom: 0; }
+.favorite-list-row a { color: var(--ink); font-weight: 650; text-decoration: none; }
+.favorite-list-row a:hover { color: var(--green-dark); }
+.favorite-list-row .muted { display: block; font-size: 12.5px; }
+
+/* Форма «избранного» не должна ломать flex-строку карточки */
+.doctor-card .action-row { flex-wrap: wrap; }
+.doctor-card .action-row form { display: contents; }
+
+/* Кнопки на подтверждённой записи (чат + видеовстреча) */
+.appointment-accepted-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}

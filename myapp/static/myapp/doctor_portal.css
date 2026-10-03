@@ -1,0 +1,50 @@
+.doctor-theme { --doctor-ink: #372630; --doctor-blue: #ff5f74; --doctor-lime: #f0c66f; --doctor-line: #d8e5eb; }
+.doctor-theme .topbar { border-bottom-color: var(--doctor-line); background: rgba(255, 249, 251, .94); }
+.doctor-theme .brand-mark { background: linear-gradient(135deg, #ff5f74, #ff8fa3); box-shadow: 0 10px 18px rgba(255, 95, 116, .2); }
+.doctor-theme .container { color: var(--doctor-ink); }
+.doctor-theme .button { border-color: #ff5f74; background: linear-gradient(120deg, #ff5f74, #ff7a8c); box-shadow: 0 12px 24px rgba(255, 95, 116, .2); }
+.doctor-theme .button-light { border-color: var(--doctor-line); background: #f4f9fb; color: var(--doctor-blue); box-shadow: none; }
+.doctor-theme .doctor-avatar { background: linear-gradient(135deg, #fff0f3, #fff1f3); color: var(--doctor-blue); }
+.doctor-workspace { padding: 30px; border: 1px solid var(--doctor-line); border-radius: 26px; background: linear-gradient(145deg, #fff1f4, #fff 54%, #fff8ed); box-shadow: 0 22px 55px rgba(74, 44, 54, .09); }
+.doctor-workspace-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 26px; border-bottom: 1px solid var(--doctor-line); }
+.doctor-workspace-header h1 { margin: 2px 0 8px; color: var(--doctor-ink); font-family: "Trebuchet MS", "Segoe UI", sans-serif; font-size: 34px; font-weight: 700; }
+.doctor-workspace-header p:not(.doctor-kicker) { margin: 0; color: #8a6e77; }
+.doctor-kicker { margin: 0 0 6px; color: var(--doctor-blue); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+.doctor-status-panel { min-width: 180px; display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 9px; padding: 15px; border: 1px solid var(--doctor-line); border-radius: 16px; background: #fff; }
+.doctor-status-dot { width: 10px; height: 10px; border-radius: 50%; background: #87979f; }
+.doctor-status-dot.free { background: #ff5f74; box-shadow: 0 0 0 4px #ffe9ee; }
+.doctor-status-dot.busy { background: #eda33f; }
+.doctor-stat-number { grid-column: 1; margin-top: 12px; color: var(--doctor-blue); font-family: Georgia, serif; font-size: 26px; }
+.doctor-status-panel small { grid-column: 2; align-self: end; padding-bottom: 4px; color: #8a6e77; }
+.doctor-portal-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(230px, .7fr); gap: 20px; padding-top: 22px; }
+.doctor-conversations-panel, .doctor-side-note { border: 1px solid var(--doctor-line); border-radius: 20px; background: rgba(255,255,255,.9); }
+.doctor-conversations-panel { overflow: hidden; }
+.doctor-panel-heading { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid var(--doctor-line); }
+.doctor-panel-heading h2, .doctor-side-note h2 { margin: 0; color: var(--doctor-ink); font-family: "Trebuchet MS", "Segoe UI", sans-serif; font-size: 20px; font-weight: 700; }
+.doctor-count { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; background: #feeff3; color: var(--doctor-blue); font-weight: 700; }
+.doctor-conversation-link { display: flex; align-items: center; gap: 13px; padding: 15px 20px; border-bottom: 1px solid #fdeff2; color: var(--doctor-ink); transition: background .18s ease; }
+.doctor-conversation-link:hover { background: #f4f9fb; }
+.doctor-patient-avatar { width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 14px; background: #fff0f3; color: var(--doctor-blue); font-weight: 700; }
+.doctor-conversation-copy { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.doctor-conversation-copy small, .doctor-conversation-copy > span { overflow: hidden; color: #8a6e77; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.doctor-chevron { color: var(--doctor-blue); font-size: 20px; }
+.doctor-empty-state { display: flex; align-items: center; gap: 14px; padding: 24px 20px; color: #8a6e77; }
+.doctor-empty-state span { color: #6fbdb4; font-family: Georgia, serif; font-size: 27px; }
+.doctor-empty-state p { margin: 0; }
+.doctor-side-note { align-self: start; padding: 22px; background: linear-gradient(145deg, #fff0f3, #ffeff4); }
+.doctor-note-mark { display: grid; width: 40px; height: 40px; margin-bottom: 18px; place-items: center; border-radius: 13px; background: var(--doctor-lime); color: #6b4b54; font-size: 22px; font-weight: 700; }
+.doctor-side-note p { margin: 12px 0 18px; color: #866a72; font-size: 13px; }
+.doctor-side-note > a { color: var(--doctor-blue); font-size: 13px; font-weight: 700; }
+.doctor-theme .conversation-page { border-color: var(--doctor-line); }
+.doctor-theme .conversation-header { background: linear-gradient(110deg, #fff4f6, #fff); }
+.doctor-theme .conversation-messages { background: linear-gradient(180deg, #fff4f6, #fdeff3); }
+.doctor-theme .chat-message.mine { border-color: #c9e9e4; background: #fff1f3; }
+.doctor-theme .recommendation-card { border-color: var(--doctor-line); }
+
+@media (max-width: 720px) {
+    .doctor-workspace { padding: 18px; }
+    .doctor-workspace-header { align-items: flex-start; flex-direction: column; }
+    .doctor-workspace-header h1 { font-size: 28px; }
+    .doctor-status-panel { width: 100%; }
+    .doctor-portal-layout { grid-template-columns: 1fr; }
+}

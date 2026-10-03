@@ -1,0 +1,248 @@
+:root {
+    --ink: #3a2a31;
+    --muted: #866a73;
+    --paper: #fdf4f6;
+    --line: #f2e3e8;
+    --green: #ff8fa3;
+    --green-dark: #e0455d;
+    --mint: #fff0f3;
+    --soft: #fff1f3;
+    --amber: #d3932e;
+    --red: #e0455d;
+    --sky: #ffeef2;
+    --shadow: 0 20px 48px rgba(58, 40, 48, .095);
+    --navy: #4a2437;
+    --blue: #ff5f74;
+}
+
+body {
+    background-color: #fdf4f6;
+    background-image: repeating-linear-gradient(135deg, rgba(255, 95, 116, .025) 0 1px, transparent 1px 18px), linear-gradient(125deg, #fff9f5 0%, #fff1f4 54%, #fdeff3 100%);
+    color: var(--ink);
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.topbar { width: min(1240px, calc(100% - 28px)); min-height: 68px; margin: 10px auto 0; padding: 8px 14px 8px 22px; border: 1px solid rgba(211,224,237,.9); border-radius: 21px; background: rgba(255,255,255,.83); box-shadow: 0 12px 32px rgba(74, 44, 54,.1); backdrop-filter: blur(18px) saturate(1.2); }
+.brand { color: var(--navy); }
+.brand-mark { background: linear-gradient(145deg, #ff7a8c, #ff5f74, #ff8fa3); background-size: 220% 220%; animation: color-drift 9s ease-in-out infinite; box-shadow: 0 8px 18px rgba(255, 95, 116,.22); }
+.navigation a { display: inline-flex; min-height: 40px; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 13px; transition: color .2s ease, background .2s ease, transform .2s cubic-bezier(.2,.8,.2,1); }
+.navigation a:hover { background: linear-gradient(120deg,#ffeef2,#fff1f3); transform: translateY(-1px); }
+.navigation a:active { transform: scale(.97); }
+.cart-nav-link { position: relative; }
+.cart-count { min-width: 21px; height: 21px; display: inline-grid; place-items: center; padding: 0 5px; border: 2px solid #fff; border-radius: 999px; background: #ff5f74; color: #fff; font-size: 11px; font-weight: 800; line-height: 1; box-shadow: 0 3px 9px rgba(177,44,60,.27); animation: badge-pop .32s cubic-bezier(.2,.9,.3,1.4) both; }
+.navigation a:hover, .text-link:hover { color: var(--green-dark); }
+.nav-register { border-color: #f8dde3; background: #ffeef2; }
+.container > section, .directory-shell, .form-section, .profile-panel, .cart-group, .empty-cart, .medicine-card, .doctor-row, .doctor-card, .pharmacy-card, .review-section, .pharmacy-hero, .conversation-page, .appointment-page, .prescription-section {
+    animation: care-rise .48s cubic-bezier(.2,.7,.2,1) both;
+}
+.button { border-color: transparent; background: linear-gradient(115deg, #ff7a8c, #ff8fa3, #ff5f74, #e0455d); background-size: 240% 240%; animation: color-drift 10s ease-in-out infinite; box-shadow: 0 12px 25px rgba(255, 95, 116,.19); transition: transform .24s cubic-bezier(.2,.8,.2,1), box-shadow .24s ease, filter .24s ease; }
+.button:hover { filter: saturate(1.12) brightness(1.03); box-shadow: 0 16px 29px rgba(255, 95, 116,.26); transform: translateY(-2px); }
+.button:active { transform: translateY(1px) scale(.97); box-shadow: 0 5px 12px rgba(255, 95, 116,.2); }
+.button-light { border-color: #cddfe6; background: #fff4f6; color: #d9455e; box-shadow: none; }
+.button-secondary { border-color: #f7dde3; background: #fff0f3; color: #e0455d; box-shadow: none; }
+input, textarea, select { border-color: #edccd4; background: rgba(255,255,255,.95); }
+input:focus, textarea:focus, select:focus { border-color: #ff5f74; outline: 3px solid rgba(255, 95, 116,.14); }
+.pharmacy-band { background: linear-gradient(120deg, #7a2340 0%, #ff5f74 22%, #ff5f74 48%, #ff8fa3 72%, #ff9fb1 100%); background-size: 320% 320%; animation: color-drift 7s ease-in-out infinite; }
+.specialist-banner { border-color: #f9dfe6; background: linear-gradient(112deg, #ffeef2 0%, #fdf4f6 42%, #fff1f3 76%, #fdeef1); background-size: 230% 230%; animation: color-drift 17s ease-in-out infinite; }
+.directory-shell { border-color: #f2e5e9; background: rgba(255,255,255,.88); }
+.pharmacy-card { border-color: #e2e4e9; background: linear-gradient(150deg, #fff, #fffdfb 76%, #fff2f5); }
+.doctor-card { border-color: #f3e6ea; background: linear-gradient(150deg, #fff, #fff8fa); }
+.rating-badge { background: #fff5e4; color: #8a5e19; }
+.status-badge.free { background: #ffe9ee; color: #e0455d; }
+.status-badge.busy { background: #fff0dc; color: #94651e; }
+.status-badge.offline { background: #f6eef1; color: #7f646d; }
+.status-badge.vacation { background: #ffeff2; color: #d9455e; }
+.status-badge.emergency { background: #ffebea; color: #d9455e; }
+.profile-panel { border-color: #f3e7ea; background: linear-gradient(145deg, white, #fcfdfd); }
+.payment-disclaimer { margin: 0; padding: 10px 12px; border-left: 3px solid #ff5f74; background: #ffeef2; color: #7a5f69; font-size: 12px; }
+.wallet-history { margin: 14px 0 24px; }
+.wallet-transaction-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 13px; }
+.wallet-transaction-row span { color: var(--muted); }
+.order-amount { color: #e0455d; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* --- Страница оплаты: сводка заказа слева, форма с картой справа --- */
+.payment-page { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 24px; margin-top: 24px; align-items: start; }
+.payment-summary, .payment-card-panel { padding: 26px; border: 1px solid #f3e7ea; border-radius: 24px; background: linear-gradient(145deg, white, #fcfdfd); box-shadow: var(--shadow); }
+.payment-summary { position: sticky; top: 92px; display: grid; gap: 14px; }
+.payment-summary-items { display: grid; gap: 10px; }
+.payment-summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.payment-summary-row span { color: var(--muted); }
+.payment-summary-row strong { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.payment-summary-total { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; font-size: 17px; }
+.payment-summary-total strong { color: #e0455d; font-size: 24px; font-variant-numeric: tabular-nums; }
+.payment-back { color: var(--green-dark); font-size: 13px; }
+.pay-form-errors { display: grid; gap: 6px; margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid #e0455d; background: #ffeff2; color: #b5354c; font-size: 13px; list-style: none; }
+
+/* --- Экран успешной оплаты --- */
+.payment-success { width: min(720px, 100%); margin: 34px auto; padding: 34px; border: 1px solid #f3e7ea; border-radius: 26px; background: linear-gradient(145deg, white, #fcfdfd); box-shadow: var(--shadow); text-align: center; }
+.payment-success-mark { display: inline-grid; place-items: center; width: 74px; height: 74px; margin-bottom: 16px; border-radius: 50%; background: linear-gradient(145deg, #ff7a8c, #ff5f74); color: #fff; box-shadow: 0 16px 34px rgba(255, 95, 116, .34); animation: badge-pop .5s cubic-bezier(.2,.9,.3,1.4) both; }
+.payment-success h1 { margin: 6px 0 8px; }
+.payment-success .muted { margin: 0 auto; max-width: 520px; }
+.payment-success .muted strong { color: var(--green-dark); }
+.payment-success-card { display: grid; gap: 12px; margin-top: 24px; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, #fff9fa, #fff); text-align: left; }
+.payment-success-items { display: grid; gap: 10px; margin-top: 4px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.payment-success-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 16px; margin-top: 24px; }
+@media (max-width: 720px) {
+    .payment-success { padding: 24px 18px; }
+    .payment-success-actions .button { width: 100%; }
+}
+
+/* --- Форма карты: поля слева, визуал карты справа --- */
+.pay-form { margin-top: 16px; }
+.pay-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(250px, 300px); gap: 24px; align-items: start; }
+.pay-fields { display: grid; gap: 14px; }
+.pay-field { display: grid; gap: 6px; }
+.pay-label { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.pay-field input { letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+.pay-expiry { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.3fr); align-items: center; gap: 10px; }
+.pay-expiry-sep { color: var(--muted); font-size: 17px; }
+.pay-expiry select { letter-spacing: .06em; }
+.pay-brands { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+.pay-brand { padding: 5px 11px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .07em; opacity: .55; transition: opacity .2s ease, border-color .2s ease, color .2s ease, transform .2s ease; }
+.pay-brand.is-active { border-color: #ff8fa3; background: #fff0f3; color: var(--green-dark); opacity: 1; transform: translateY(-1px); }
+
+.pay-card { position: relative; overflow: hidden; display: grid; gap: 14px; padding: 18px; border: 1px solid rgba(255,255,255,.5); border-radius: 20px; background: linear-gradient(140deg, #ff7a8c 0%, #ff5f74 45%, #e0455d 100%); color: #fff; box-shadow: 0 22px 44px rgba(224, 69, 93, .3); }
+.pay-card::after { content: ""; position: absolute; inset: auto -30% -55% auto; width: 75%; height: 75%; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), rgba(255,255,255,0) 70%); pointer-events: none; }
+.pay-card-top { display: flex; align-items: center; justify-content: space-between; }
+.pay-card-chip { width: 42px; height: 30px; border-radius: 7px; background: linear-gradient(135deg, #ffe6a8, #e6b95c 55%, #f6d98d); box-shadow: inset 0 0 0 1px rgba(255,255,255,.55); }
+.pay-card-contactless { font-size: 15px; letter-spacing: -1px; opacity: .75; transform: rotate(90deg); }
+.pay-card-number { font-family: "Trebuchet MS", "Segoe UI", sans-serif; font-size: clamp(15px, 2.4vw, 19px); font-weight: 700; letter-spacing: .13em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pay-card-meta { display: flex; justify-content: space-between; gap: 14px; }
+.pay-card-block { display: grid; gap: 3px; min-width: 0; }
+.pay-card-caption { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .75; }
+.pay-card-value { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pay-card-cvc { position: relative; z-index: 1; display: grid; gap: 5px; justify-items: start; }
+.pay-card-cvc input { width: 108px; min-height: 38px; padding: 7px 10px; border: 1px solid rgba(255,255,255,.75); border-radius: 10px; background: rgba(255,255,255,.94); color: #3a2a31; text-align: center; letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+.pay-card-cvc input:focus { border-color: #fff; outline: 3px solid rgba(255,255,255,.4); }
+.pay-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-top: 18px; }
+.pay-actions .payment-disclaimer { flex: 1 1 320px; }
+
+@media (max-width: 860px) {
+    .payment-page { grid-template-columns: 1fr; }
+    .payment-summary { position: static; }
+    .pay-grid { grid-template-columns: 1fr; }
+    .pay-card { max-width: 360px; }
+}
+@media (max-width: 720px) {
+    .pay-actions .button { width: 100%; }
+}
+.appointment-page { width: min(680px,100%); margin: 36px auto; padding: 30px; border: 1px solid #d8e5eb; border-radius: 24px; background: linear-gradient(145deg, #fff, #fff4f7); box-shadow: var(--shadow); }
+.appointment-back { display: inline-block; margin-bottom: 24px; color: #ff5f74; font-size: 13px; }
+.appointment-page h1 { margin-bottom: 6px; font-size: 36px; }
+.appointment-status-panel { display: grid; justify-items: start; gap: 10px; margin-top: 24px; padding: 22px; border: 1px solid #f6e5ea; border-radius: 18px; background: linear-gradient(120deg, #ffeef2, #fff3f6 75%, #fff2f4); }
+.appointment-status-panel p { margin: 0; color: #7d5f67; }
+.appointment-clock { color: #e0455d; font-family: Georgia,serif; font-size: 44px; font-variant-numeric: tabular-nums; }
+.appointment-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.appointment-actions form { margin: 0; }
+.appointment-list { border-bottom: 1px solid var(--line); }
+.appointment-countdown { color: #e0455d; font-variant-numeric: tabular-nums; font-weight: 750; }
+.inbox-subheading { margin: 24px 0 4px; font-family: "Trebuchet MS","Segoe UI",sans-serif; font-size: 18px; font-weight: 700; }
+.appointment-preview { border-color: #efd9cb; background: linear-gradient(100deg, #fff9f3, #fdeff3); }
+.appointment-countdown[aria-label="expired"] { color: var(--muted); }
+.registration-choice { width: min(900px,100%); margin: 38px auto; }
+.registration-choice > h1 { max-width: 680px; }
+.registration-choice-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; margin-top: 26px; }
+.registration-choice-card { min-height: 250px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 24px; border: 1px solid #f2e5e9; border-radius: 22px; background: linear-gradient(145deg,#fff,#fff1f5); color: var(--ink); box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease; }
+.registration-choice-card:hover { transform: translateY(-4px); box-shadow: 0 24px 48px rgba(58, 40, 48,.14); }
+.doctor-choice { background: linear-gradient(145deg,#fff,#fff1f3 65%,#fff2f4); }
+.registration-choice-card strong { color: var(--navy); font-family: Georgia,serif; font-size: 25px; font-weight: 500; }
+.registration-choice-card > span:not(.registration-icon):not(.eyebrow) { color: var(--muted); }
+.registration-choice-card b { margin-top: auto; color: #ff5f74; }
+.registration-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 14px; background: linear-gradient(135deg,#ffeef2,#fff1f3); color: #e0455d; font-size: 24px; font-weight: 800; }
+.register-page { width: min(1040px,100%); margin: 24px auto; }
+.registration-back { display: inline-block; margin-bottom: 14px; font-size: 13px; }
+.register-page-grid { display: grid; grid-template-columns: .85fr 1.15fr; overflow: hidden; border: 1px solid #d6e3e9; border-radius: 26px; background: white; box-shadow: var(--shadow); }
+.register-intro { position: relative; min-height: 540px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 32px; background: linear-gradient(155deg,#c2405a,#ff5f74 55%,#ffb3c0); color: white; }
+.doctor-intro { background: linear-gradient(155deg,#123f3c,#ff8fa3 56%,#7fd6cd); }
+.register-intro .eyebrow { color: #fff0f2; }
+.register-intro h1 { position: relative; z-index: 1; font-family: Georgia,serif; font-size: 38px; }
+.register-intro p:last-of-type { position: relative; z-index: 1; max-width: 300px; color: rgba(255,255,255,.86); }
+.register-form-panel { padding: 32px; }
+.register-form-panel h2 { font-family: Georgia,serif; font-weight: 500; }
+.register-login-link { margin: 18px 0 0; color: var(--muted); font-size: 13px; }
+.review-entry, .conversation-preview { transition: background .18s ease, transform .18s ease; }
+.conversation-preview:hover { background: #fff4f6; transform: translateX(3px); }
+.pharmacy-select { border-color: #d9e5e9; background: rgba(255,255,255,.92); }
+.medicine-photo { border: 1px solid rgba(86, 56, 66,.12); box-shadow: 0 6px 14px rgba(58, 40, 48,.08); }
+.empty-cart, .cart-group { background: linear-gradient(145deg,rgba(255,255,255,.96),rgba(240,248,247,.9)); }
+.footer { color: #8b7078; border-top-color: #d8e3e9; }
+.doctor-row-link { color: var(--ink); text-decoration: none; }
+.doctor-row-link:hover { border-color: #f6dce3; background: linear-gradient(110deg,#fff,#fff2f5); transform: translateY(-2px); }
+.doctor-row-action { flex: 0 0 auto; color: #ff5f74; font-size: 13px; font-weight: 750; }
+.mobile-menu-toggle { display: none; }
+.eyebrow { color: #e0455d; }
+.doctor-avatar { background: linear-gradient(135deg,#ffeef2,#fff1f3); color: #ff5f74; }
+.doctor-specialties span, .medicine-categories span { background: #ffeef2; color: #e0455d; }
+.status-badge.free { background: #ffe9ee; color: #e0455d; }
+.discount-tag, .prescribed-tag { background: #fff0f3; color: #e0455d; }
+.message { border-left-color: #ff5f74; background: #fff0f3; }
+.message.error { border-left-color: #e0455d; background: #fff0ec; }
+.message.success { border-color: #ff5f74; background: linear-gradient(110deg,#ffeef2,#fff2f4); box-shadow: 0 9px 22px rgba(255, 95, 116,.1); animation: toast-arrive .36s cubic-bezier(.2,.8,.2,1) both; }
+.price-pill { background: #ffeef2; color: #e0455d; }
+
+@keyframes color-drift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes badge-pop {
+    from { opacity: 0; transform: scale(.55); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes toast-arrive {
+    from { opacity: 0; transform: translateY(-8px) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes care-rise {
+    from { opacity: 0; transform: translateY(9px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 720px) {
+    .topbar { position: sticky; top: 8px; width: calc(100% - 20px); align-items: center; min-height: 64px; margin-top: 8px; padding: 8px 12px; }
+    .brand { font-size: 19px; }
+    .mobile-menu-toggle { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid #f5e4e9; border-radius: 13px; background: linear-gradient(145deg,#fff,#ffeef2); color: #e0455d; font: 700 27px/1 "Trebuchet MS",sans-serif; cursor: pointer; box-shadow: 0 5px 12px rgba(96, 52, 64,.1); transition: color .2s ease, background .2s ease, transform .2s ease; }
+    .mobile-menu-toggle[aria-expanded="true"] { border-color: transparent; background: linear-gradient(135deg,#ff8fa3,#ff5f74); color: #fff; transform: rotate(90deg); }
+    .mobile-menu-toggle:focus-visible { outline: 3px solid rgba(255, 95, 116,.28); outline-offset: 3px; }
+    .navigation { display: none; position: absolute; top: calc(100% + 7px); right: 0; left: 0; z-index: 20; flex-direction: column; align-items: stretch; gap: 4px; padding: 10px; border: 1px solid #f2e0e5; border-radius: 18px; background: #fff; opacity: 1; isolation: isolate; backdrop-filter: blur(16px) saturate(1.15); box-shadow: 0 18px 40px rgba(58, 40, 48,.2); transform-origin: top right; }
+    .navigation.is-open { display: flex; animation: menu-arrive .24s cubic-bezier(.2,.8,.2,1) both; }
+    .navigation a, .navigation .link-button { display: flex; min-height: 44px; align-items: center; padding: 10px 13px; border-radius: 11px; font-size: 15px; }
+    .navigation a, .navigation .link-button { transition: color .16s ease, background .16s ease, transform .16s ease; }
+    .navigation a:hover, .navigation .link-button:hover { background: linear-gradient(100deg,#ffeef2,#fff1f3); color: #e0455d; transform: translateX(3px); }
+    .navigation a:focus-visible, .navigation .link-button:focus-visible { outline: 2px solid #ff5f74; outline-offset: 1px; }
+    .navigation form { display: block; }
+    .navigation .nav-register { border: 0; background: #ffeef2; }
+    .registration-choice-grid, .register-page-grid { grid-template-columns: 1fr; }
+    .doctor-profile-hero { grid-template-columns: auto minmax(0,1fr); gap: 14px; padding: 20px; }
+    .doctor-profile-copy { min-width: 0; }
+    .doctor-profile-copy h1 { font-size: 29px; overflow-wrap: anywhere; }
+    .doctor-profile-actions { grid-column: 1 / -1; align-items: stretch; }
+    .doctor-profile-actions form { flex: 1 1 100%; }
+    .doctor-profile-actions .button { width: 100%; }
+    .doctor-profile-stats span { flex: 0 1 auto; }
+    .doctor-row-link { align-items: flex-start; flex-wrap: wrap; }
+    .doctor-row-action { width: auto; max-width: calc(100% - 59px); margin-left: 59px; }
+    .register-intro { min-height: 230px; padding: 24px; }
+    .register-intro h1 { font-size: 30px; }
+    .register-form-panel, .appointment-page { padding: 20px; }
+    .appointment-actions { display: grid; }
+    .appointment-actions .button { width: 100%; }
+    .recommendation-card { grid-template-columns: 54px minmax(0,1fr); }
+    .recommendation-card form, .recommendation-card > .muted { grid-column: 2; }
+    .recommendation-card .button { width: 100%; }
+}
+
+@keyframes menu-arrive {
+    from { opacity: 0; transform: translateY(-6px) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
